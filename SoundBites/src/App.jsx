@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Player from "./components/Player";
+import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
 import Search from "./pages/Search";
@@ -20,6 +21,7 @@ function App() {
         </Routes>
       </main>
       <Player />
+      <Footer />
     </div>
   );
 }
