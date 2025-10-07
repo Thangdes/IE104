@@ -6,12 +6,8 @@ function Sidebar() {
         <aside className="w-64 flex-shrink-0">
             <div className="sticky top-0 h-screen overflow-y-auto px-4 py-6 bg-[#1b1b1f] rounded-r-xl">
                 <div>
-                    <div className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2 flex items-center justify-between">
-                        <img
-                            src="name.png"
-                            alt="Site Name"
-                            className="h-10 w-auto"
-                        />
+                    <div className="text-lg font-semibold mt-4 mb-4 border-b border-gray-700 pb-2">
+                        Menu
                     </div>
 
                     <nav>

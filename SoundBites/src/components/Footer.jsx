@@ -111,7 +111,7 @@ function Footer() {
                 </div>
 
                 {/* --- Bottom Section --- */}
-                <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-700 pt-6  pb-6 gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-700 pt-6 pb-10 gap-4">
                     <div className="text-gray-500 text-sm text-center md:text-left">
                         © SoundBites | Designed by{" "}
                         <a className="text-white hover:underline">Group 1</a>
