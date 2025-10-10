@@ -1,9 +1,6 @@
 import React from "react";
 
-/**
- * Minimal Input component similar to shadcn's style.
- * Props: type, name, value, onChange, placeholder, className, ...rest
- */
+
 const Input = React.forwardRef(({ className = "", type = "text", ...props }, ref) => {
   return (
     <input
