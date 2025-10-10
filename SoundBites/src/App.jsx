@@ -11,7 +11,7 @@ import Profile from "./pages/Profile";
 
 function App() {
     return (
-        <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+        <div className="flex flex-col min-h-screen bg-[#1b1c1f] text-white font-redhat">
             {/* HEADER */}
             <Navbar />
 
