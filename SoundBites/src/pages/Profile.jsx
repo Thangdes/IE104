@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import AvatarUpload from "../components/profile/AvatarUpload";
 import ProfileForm from "../components/profile/ProfileForm";
 import ActionButtons from "../components/profile/ActionButtons";
 
@@ -26,13 +25,19 @@ function Profile() {
   const handleUpload = () => {
     alert("Tải ảnh lên chưa được triển khai trong demo");
   };
+  // handlers kept for future use
+  const handleDeleteAccount = () => {};
+  const handleLogout = () => {};
 
-  const handleDeleteAccount = () => {
-    alert("Xóa tài khoản chưa được triển khai");
-  };
-
-  const handleLogout = () => {
-    alert("Đăng xuất (demo)");
+  const handleSave = () => {
+    // For demo: save to localStorage
+    try {
+      localStorage.setItem("userProfile", JSON.stringify(form));
+      alert("Lưu thay đổi thành công (demo)");
+    } catch (e) {
+      console.error(e);
+      alert("Lưu thất bại");
+    }
   };
 
   return (
@@ -40,12 +45,14 @@ function Profile() {
       <ActionButtons onDelete={handleDeleteAccount} onLogout={handleLogout} />
 
       <div className="bg-white/5 p-6 rounded-lg shadow-md">
-        <div className="flex flex-col md:flex-row gap-6">
-          <AvatarUpload onUpload={handleUpload} />
+        <div className="flex flex-col gap-6">
           <ProfileForm form={form} onChange={handleChange} onGenderChange={handleGenderChange} />
-        </div>
-        <div className="mt-6 flex justify-center md:justify-start">
-          <button onClick={handleLogout} className="px-6 py-2 bg-orange-200 text-orange-800 rounded font-semibold">Đăng xuất</button>
+          {/* Nút lưu thay đổi ở cuối */}
+          <div className="flex justify-end mt-8">
+            <button onClick={handleSave} className="px-6 py-2 font-bold" style={{backgroundColor: '#1DB954', color: 'white', borderRadius: '0.5rem'}}>
+              Lưu thay đổi
+            </button>
+          </div>
         </div>
       </div>
     </div>
