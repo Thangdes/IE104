@@ -1,12 +1,5 @@
 import React from "react";
 
-/**
- * Minimal Checkbox component (shadcn-style) suitable for controlled usage.
- * Props:
- * - checked: boolean
- * - onChange: function(checked)
- * - className: additional classes
- */
 export default function Checkbox({ checked = false, onChange, className = "", ...props }) {
   return (
     <input
