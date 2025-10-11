@@ -9,14 +9,20 @@ import Search from "./pages/Search";
 import Library from "./pages/Library";
 import Profile from "./pages/Profile";
 import LoginPage from "./pages/LoginPage";
+import Signup from "./pages/Signup";
 
 function App() {
     const location = useLocation();
     const isLoginPage = location.pathname === "/login";
+    const isSignupPage = location.pathname === "/signup";
 
     if (isLoginPage) {
         // Chỉ render LoginPage, không có layout
         return <LoginPage />;
+    }
+    if (isSignupPage) {
+        // Chỉ render Signup, không có layout
+        return <Signup />;
     }
 
     return (
@@ -36,6 +42,7 @@ function App() {
                         <Route path="/search" element={<Search />} />
                         <Route path="/library" element={<Library />} />
                         <Route path="/profile" element={<Profile />} />
+
                         {/* Không cần route login ở đây nữa */}
                     </Routes>
                 </main>
