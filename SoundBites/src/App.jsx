@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Player from "./components/Player";
 import Footer from "./components/Footer";
@@ -8,8 +8,17 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Library from "./pages/Library";
 import Profile from "./pages/Profile";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
+    const location = useLocation();
+    const isLoginPage = location.pathname === "/login";
+
+    if (isLoginPage) {
+        // Chỉ render LoginPage, không có layout
+        return <LoginPage />;
+    }
+
     return (
         <div className="flex flex-col min-h-screen bg-[#1b1c1f] text-white font-redhat">
             {/* HEADER */}
@@ -27,6 +36,7 @@ function App() {
                         <Route path="/search" element={<Search />} />
                         <Route path="/library" element={<Library />} />
                         <Route path="/profile" element={<Profile />} />
+                        {/* Không cần route login ở đây nữa */}
                     </Routes>
                 </main>
             </div>
