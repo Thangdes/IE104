@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id       Int           @id @default(autoincrement())
+  username      String
+  email         String        @unique
+  password_hash String
+  avatar_url    String?
+  role          String?
+  created_at    DateTime?     @default(now())
+
+  playlists       playlists[]
+  favorites       favorites[]
+  history         history[]
+  recommendations recommendations[]
+}
+
+model artists {
+  artist_id Int      @id @default(autoincrement())
+  name      String
+  bio       String?
+  country   String?
+  image_url String?
+
+  albums albums[]
+  songs  songs[]
+}
+
+model albums {
+  album_id     Int      @id @default(autoincrement())
+  title        String
+  artist_id    Int
+  release_date DateTime?
+  cover_image  String?
+
+  artist artists @relation(fields: [artist_id], references: [artist_id])
+  songs  songs[]
+}
+
+model genres {
+  genre_id    Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+
+  songs songs[]
+}
+
+model songs {
+  song_id     Int       @id @default(autoincrement())
+  title       String
+  artist_id   Int
+  album_id    Int?
+  genre_id    Int?
+  duration    Int?
+  file_url    String?
+  lyrics      String?
+  play_count  Int?      @default(0)
+  upload_date DateTime? @default(now())
+
+  artist artists @relation(fields: [artist_id], references: [artist_id])
+  album  albums? @relation(fields: [album_id], references: [album_id])
+  genre  genres? @relation(fields: [genre_id], references: [genre_id])
+
+  playlist_songs   playlist_songs[]
+  favorites        favorites[]
+  history          history[]
+  recommendations  recommendations[]
+}
+
+model playlists {
+  playlist_id Int       @id @default(autoincrement())
+  name        String
+  user_id     Int
+  description String?
+  cover_image String?
+  created_at  DateTime?  @default(now())
+
+  user           users @relation(fields: [user_id], references: [user_id])
+  playlist_songs playlist_songs[]
+}
+
+model playlist_songs {
+  playlist_id Int
+  song_id     Int
+  added_at    DateTime? @default(now())
+
+  playlist playlists @relation(fields: [playlist_id], references: [playlist_id])
+  song     songs     @relation(fields: [song_id], references: [song_id])
+
+  @@id([playlist_id, song_id]) // composite primary key
+}
+
+model favorites {
+  user_id    Int
+  song_id    Int
+  created_at DateTime? @default(now())
+
+  user users @relation(fields: [user_id], references: [user_id])
+  song songs @relation(fields: [song_id], references: [song_id])
+
+  @@id([user_id, song_id])
+}
+
+model history {
+  history_id Int       @id @default(autoincrement())
+  user_id    Int
+  song_id    Int
+  played_at  DateTime? @default(now())
+
+  user users @relation(fields: [user_id], references: [user_id])
+  song songs @relation(fields: [song_id], references: [song_id])
+}
+
+model recommendations {
+  user_id    Int
+  song_id    Int
+  score      Float?
+  created_at DateTime? @default(now())
+
+  user users @relation(fields: [user_id], references: [user_id])
+  song songs @relation(fields: [song_id], references: [song_id])
+
+  @@id([user_id, song_id])
+}
