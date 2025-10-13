@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useSong } from "../context/SongContext";
 import SongCard from "../components/SongCard";
 import PlaylistCard from "../components/PlaylistCard";
 
 function Home() {
+    const { setCurrentSong } = useSong();
     const [topSongs, setTopSongs] = useState([]);
     const [playlists, setPlaylists] = useState([]);
 
@@ -47,16 +49,17 @@ function Home() {
                     </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {topSongs.map((song) => (
-                            <SongCard
-                                key={song.song_id}
-                                title={song.title}
-                                artist={song.artist?.name || "Unknown Artist"}
-                                coverImage={song.album?.cover_image}
-                                fileUrl={song.file_url}
-                                playCount={song.play_count}
-                            />
-                        ))}
+                    {topSongs.map((song) => (
+                        <SongCard
+                            key={song.song_id}
+                            title={song.title}
+                            artist={song.artist?.name || "Unknown Artist"}
+                            coverImage={song.album?.cover_image}
+                            fileUrl={song.file_url}
+                            playCount={song.play_count}
+                            onPlay={() => setCurrentSong(song)}
+                        />
+                    ))}
                 </div>
             </section>
 

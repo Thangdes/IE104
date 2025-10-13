@@ -1,6 +1,6 @@
 import React from "react";
 
-function SongCard({ title, artist, coverImage, playCount, onPlay }) {
+function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl }) {
     return (
         <div className="flex flex-col items-center text-center bg-[#38373D] hover:bg-[#323137] rounded-xl transition cursor-pointer group p-3">
             {/* Album Cover */}
@@ -18,6 +18,7 @@ function SongCard({ title, artist, coverImage, playCount, onPlay }) {
                 <button
                     onClick={onPlay}
                     className="absolute bottom-2 right-2 text-white hover:text-[#626267] opacity-0 group-hover:opacity-100 transition text-3xl rounded-full"
+                    aria-label="Play song"
                 >
                     <i className="fa-solid fa-play"></i>
                 </button>
