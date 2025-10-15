@@ -53,7 +53,7 @@ const Signup = () => {
                     <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{
-                            backgroundImage: `url('https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSxDXy8Ec3F33Wu2aMp-mG_w7qb53gxls1EGge2nKEZ4ozyFNgD')`,
+                            backgroundImage: `url('/signup_bg.jpg')`,
                             filter: 'brightness(0.4) contrast(1.2)',
                             backgroundPosition: 'center'
                         }}
@@ -101,7 +101,7 @@ const Signup = () => {
                                     SOUNDBITES
                                 </div>
                                 <div className="text-green-400 text-xs lg:text-sm tracking-widest uppercase font-medium">
-                                    FEEL THE RHYTHM
+                                    BITE THE BEAT
                                 </div>
                             </div>
 
