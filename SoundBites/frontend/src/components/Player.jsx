@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSong } from "../context/SongContext";
+import { useNavigate } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function formatTime(seconds) {
@@ -10,61 +11,21 @@ function formatTime(seconds) {
 }
 
 function Player() {
-    const { currentSong } = useSong();
-    const audioRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [volume, setVolume] = useState(1); // 0-1
-    const [isMuted, setIsMuted] = useState(false);
-
-    // Play or pause when user clicks the button (only set state)
-    const togglePlayPause = () => {
-        if (!currentSong?.file_url) return;
-        setIsPlaying((prev) => !prev);
-    };
-
-    // Reset when song changes
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            setProgress(0);
-            if (currentSong?.file_url) {
-                setIsPlaying(true);
-            } else {
-                setIsPlaying(false);
-            }
-        }
-    }, [currentSong]);
-
-    // Control audio playback and volume
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        if (!currentSong?.file_url) return;
-        audio.volume = volume;
-        audio.muted = isMuted;
-        if (isPlaying) {
-            audio.play().catch(() => {});
-        } else {
-            audio.pause();
-        }
-    }, [isPlaying, currentSong, volume, isMuted]);
-
-    // Update progress bar and current time
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-
-        const updateProgress = () => {
-            const percent = (audio.currentTime / audio.duration) * 100;
-            setProgress(percent || 0);
-            setCurrentTime(audio.currentTime || 0);
-        };
-
-        audio.addEventListener("timeupdate", updateProgress);
-        return () => audio.removeEventListener("timeupdate", updateProgress);
-    }, []);
+    const {
+        currentSong,
+        setCurrentSong,
+        audioRef,
+        isPlaying,
+        togglePlayPause,
+        currentTime,
+        duration,
+        progress,
+        volume,
+        setVolume,
+        isMuted,
+        setIsMuted,
+    } = useSong();
+    const navigate = useNavigate();
 
     // Handle volume icon click
     const handleVolumeIconClick = () => {
@@ -77,10 +38,18 @@ function Player() {
         if (isMuted && Number(e.target.value) > 0) setIsMuted(false);
     };
 
+    const openDetail = () => {
+        if (!currentSong) return;
+        navigate("/song");
+    };
+
     return (
-        <div className="fixed bottom-0 left-0 w-full bg-[#1b1b1f] text-white px-6 py-3 flex items-center justify-between border-t border-gray-800 shadow-lg">
-            {/* Audio element */}
-            <audio ref={audioRef} src={currentSong?.file_url || ""}></audio>
+        <div
+            className="fixed bottom-0 left-0 w-full bg-[#1b1b1f] text-white px-6 py-3 flex items-center justify-between border-t border-gray-800 shadow-lg"
+            onClick={openDetail}
+            style={{ cursor: currentSong ? "pointer" : "default" }}
+        >
+            {/* Audio element is provided by SongProvider (hidden) */}
 
             {/* Left: Song Info */}
             <div className="flex items-center gap-3">
@@ -100,33 +69,41 @@ function Player() {
                         {currentSong?.artist?.name || ""}
                     </p>
                 </div>
-                <button className="ml-3 text-gray-400 hover:text-green-500">
+                <button onClick={(e) => e.stopPropagation()} className="ml-3 text-gray-400 hover:text-green-500">
                     <i className="fa-regular fa-heart"></i>
                 </button>
             </div>
 
-            {/* Center: Controls */}
-            <div className="flex flex-col items-center gap-2">
+            {/* Center: Controls (click to open detail) */}
+            <div
+                className="flex flex-col items-center gap-2"
+                onClick={openDetail}
+                style={{ cursor: currentSong ? "pointer" : "default" }}
+            >
                 <div className="flex items-center gap-5 text-gray-300">
-                    <button className="hover:text-white">
+                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-shuffle"></i>
                     </button>
-                    <button className="hover:text-white">
+                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-backward-step"></i>
                     </button>
 
-                    {/* ▶️ Play/Pause */}
+                    {/* Play/Pause */}
                     <button
-                        onClick={togglePlayPause}
+                        onClick={(e) => {
+                            // prevent center area click from also opening detail
+                            e.stopPropagation();
+                            togglePlayPause();
+                        }}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-gray-900 hover:scale-105 transition"
                     >
                         <i className={`fa-solid ${isPlaying ? "fa-pause" : "fa-play"}`}></i>
                     </button>
 
-                    <button className="hover:text-white">
+                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-forward-step"></i>
                     </button>
-                    <button className="hover:text-white">
+                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-repeat"></i>
                     </button>
                 </div>
@@ -144,16 +121,16 @@ function Player() {
                 </div>
             </div>
 
-            {/* Right: Volume & Options */}
-            <div className="flex items-center gap-4 text-gray-300">
-                <button className="hover:text-white">
+            {/* Right: Volume & Options (clicks here should NOT open detail) */}
+            <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }} className="flex items-center gap-4 text-gray-300">
+                <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                     <i className="fa-solid fa-list"></i>
                 </button>
                 <button className="hover:text-white">
                     <i className="fa-solid fa-desktop"></i>
                 </button>
                 <div className="flex items-center gap-2 w-32">
-                    <button onClick={handleVolumeIconClick} className="focus:outline-none">
+                    <button onClick={(e) => { e.stopPropagation(); handleVolumeIconClick(); }} className="focus:outline-none">
                         <i className={`fa-solid ${isMuted || volume === 0 ? "fa-volume-xmark" : volume < 0.5 ? "fa-volume-low" : "fa-volume-high"}`}></i>
                     </button>
                     <input
@@ -162,7 +139,8 @@ function Player() {
                         max={1}
                         step={0.01}
                         value={isMuted ? 0 : volume}
-                        onChange={handleVolumeChange}
+                        onChange={(e) => { e.stopPropagation(); handleVolumeChange(e); }}
+                        onMouseDown={(e) => e.stopPropagation()}
                         className="w-20 h-1 bg-gray-700 rounded accent-gray-300"
                     />
                 </div>
