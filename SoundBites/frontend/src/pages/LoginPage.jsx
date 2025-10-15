@@ -53,7 +53,7 @@ const Login = () => {
                     <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{
-                            backgroundImage: `url('https://images.unsplash.com/photo-1453090927415-5f45085b65c0?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bXVzaWMlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww')`,
+                            backgroundImage: `url('/login_bg.jpg')`,
                             filter: 'brightness(0.4) contrast(1.2)',
                             backgroundPosition: 'center 35%'
                         }}
@@ -101,7 +101,7 @@ const Login = () => {
                                     SOUNDBITES
                                 </div>
                                 <div className="text-green-400 text-xs sm:text-sm tracking-widest uppercase font-medium mt-2">
-                                    FEEL THE RHYTHM
+                                    BITE THE BEAT
                                 </div>
                             </div>
 
