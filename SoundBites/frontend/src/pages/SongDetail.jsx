@@ -9,7 +9,7 @@ function formatTime(seconds) {
 }
 
 export default function SongDetail() {
-    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo } = useSong();
+    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo, repeatMode, setRepeatMode } = useSong();
 
     if (!currentSong) {
         return (
@@ -29,6 +29,12 @@ export default function SongDetail() {
         const dur = duration || currentSong.duration;
         const percent = Math.max(0, Math.min(1, clickX / rect.width));
         seekTo(percent * dur);
+    };
+
+    // Repeat mode button handler
+    const handleModeClick = (e) => {
+        e.stopPropagation();
+        setRepeatMode((m) => (m + 1) % 3);
     };
 
     return (
@@ -93,8 +99,15 @@ export default function SongDetail() {
                             <button className="hover:text-white">
                                 <i className="fa-solid fa-forward-step"></i>
                             </button>
-                            <button className="hover:text-white">
-                                <i className="fa-solid fa-repeat"></i>
+                            <button onClick={handleModeClick} className="hover:text-white relative">
+                                {repeatMode === 0 && <i className="fa-solid fa-repeat"></i>}
+                                {repeatMode === 1 && <i className="fa-solid fa-shuffle"></i>}
+                                {repeatMode === 2 && (
+                                    <>
+                                        <i className="fa-solid fa-repeat"></i>
+                                        <span className="absolute -bottom-1 text-xs font-bold hover:text-white">1</span>
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

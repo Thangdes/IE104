@@ -12,6 +12,7 @@ export function SongProvider({ children }) {
     const [progress, setProgress] = useState(0);
     const [volume, setVolume] = useState(1);
     const [isMuted, setIsMuted] = useState(false);
+    const [repeatMode, setRepeatMode] = useState(0);
 
     // attach audio event listeners once
     useEffect(() => {
@@ -24,8 +25,22 @@ export function SongProvider({ children }) {
             setProgress(((audio.currentTime / audio.duration) * 100) || 0);
         };
 
-        const onLoaded = () => setDuration(audio.duration || 0);
-        const onEnded = () => setIsPlaying(false);
+        const onLoaded = () => {
+            setDuration(audio.duration || 0);
+            // If isPlaying is true, play the audio (ensures switching songs works)
+            if (isPlaying) {
+                audio.play().catch(() => {});
+            }
+        };
+        const onEnded = () => {
+            if (repeatMode === 2) {
+                // repeat one
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            } else {
+                setIsPlaying(false);
+            }
+        };
 
         audio.addEventListener("timeupdate", onTime);
         audio.addEventListener("loadedmetadata", onLoaded);
@@ -36,7 +51,7 @@ export function SongProvider({ children }) {
             audio.removeEventListener("loadedmetadata", onLoaded);
             audio.removeEventListener("ended", onEnded);
         };
-    }, []);
+    }, [isPlaying, repeatMode]);
 
     // sync volume/mute
     useEffect(() => {
@@ -51,9 +66,11 @@ export function SongProvider({ children }) {
         const audio = audioRef.current;
         if (!audio) return;
         if (currentSong?.file_url) {
+            // Always pause before changing src
+            audio.pause();
             audio.src = currentSong.file_url;
             audio.load();
-            // auto-play when song set
+            // Set isPlaying true, but actual play will be triggered in loadedmetadata
             setIsPlaying(true);
         } else {
             audio.pause();
@@ -101,6 +118,8 @@ export function SongProvider({ children }) {
         setVolume,
         isMuted,
         setIsMuted,
+        repeatMode,
+        setRepeatMode,
     };
 
     return (
