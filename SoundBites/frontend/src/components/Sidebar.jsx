@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
 
-
 function Sidebar() {
     return (
         <aside className="w-64 flex-shrink-0">
             <div className="sticky top-0 h-screen overflow-y-auto px-4 py-6 bg-[#1b1b1f] rounded-r-xl">
                 <div>
-                    <div className="text-lg font-semibold mt-4 mb-4 border-b border-gray-700 pb-2">
-                        Menu
+                    <div className="flex items-center justify-between text-lg font-semibold mt-4 mb-4 border-b border-gray-700 pb-2">
+                        <span>Menu</span>
+                        <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[#28282e] transition">
+                            <i className="fa-solid fa-plus text-white text-lg"></i>
+                        </button>
                     </div>
 
                     <nav>
@@ -41,10 +43,10 @@ function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    to="/profile"
+                                    to="/playlist/1"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                 >
-                                    <i class="fa-solid fa-music"></i>
+                                    <i className="fa-solid fa-list"></i>
                                     <span>Playlists</span>
                                 </Link>
                             </li>
@@ -106,7 +108,7 @@ function Sidebar() {
                         </ul>
                     </nav>
                 </div>
-            </div>
+</div>
         </aside>
     );
 }

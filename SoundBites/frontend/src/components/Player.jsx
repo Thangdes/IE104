@@ -26,6 +26,7 @@ function Player() {
         setIsMuted,
     } = useSong();
     const navigate = useNavigate();
+    const [addStatus, setAddStatus] = useState("");
 
     // Handle volume icon click
     const handleVolumeIconClick = () => {
@@ -123,7 +124,33 @@ function Player() {
 
             {/* Right: Volume & Options (clicks here should NOT open detail) */}
             <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }} className="flex items-center gap-4 text-gray-300">
-                <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
+                {/* Thông báo khi thêm bài hát vào playlist */}
+                {addStatus && <span className="text-green-400 text-xs mr-2">{addStatus}</span>}
+                <button
+                    onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!currentSong) return;
+                        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+                        try {
+                            const res = await fetch(`${API_BASE}/playlists/1/add-song`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ songId: currentSong.song_id })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                setAddStatus("Đã thêm vào playlist!");
+                            } else {
+                                setAddStatus("Thêm thất bại!");
+                            }
+                        } catch (err) {
+                            setAddStatus("Lỗi khi thêm vào playlist!");
+                        }
+                        setTimeout(() => setAddStatus("") , 2000);
+                    }}
+                    className="hover:text-white"
+                    title="Thêm vào playlist"
+                >
                     <i className="fa-solid fa-list"></i>
                 </button>
                 <button className="hover:text-white">
