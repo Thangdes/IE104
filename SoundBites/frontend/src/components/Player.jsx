@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSong } from "../context/SongContext";
 import { useNavigate } from "react-router-dom";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function formatTime(seconds) {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -26,8 +25,15 @@ function Player() {
         setVolume,
         isMuted,
         setIsMuted,
+        repeatMode,
+        setRepeatMode,
     } = useSong();
     const navigate = useNavigate();
+
+    const handleModeClick = (e) => {
+        e.stopPropagation();
+        setRepeatMode((m) => (m + 1) % 3);
+    };
 
     // Handle volume icon click
     const handleVolumeIconClick = () => {
@@ -62,10 +68,8 @@ function Player() {
             onClick={openDetail}
             style={{ cursor: currentSong ? "pointer" : "default" }}
         >
-            {/* Audio element is provided by SongProvider (hidden) */}
-
             {/* Left: Song Info */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3" style={{ minWidth: 260, maxWidth: 400, width: 320 }}>
                 <img
                     src={
                         currentSong?.album?.cover_image ||
@@ -74,11 +78,11 @@ function Player() {
                     alt="Album Cover"
                     className="w-14 h-14 rounded-md"
                 />
-                <div>
-                    <p className="text-sm font-semibold">
+                <div className="truncate w-56">
+                    <p className="text-sm font-semibold truncate">
                         {currentSong?.title || "Chọn một bài hát để phát"}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 truncate">
                         {currentSong?.artist?.name || ""}
                     </p>
                 </div>
@@ -116,8 +120,15 @@ function Player() {
                     <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-forward-step"></i>
                     </button>
-                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
-                        <i className="fa-solid fa-repeat"></i>
+                    <button onClick={handleModeClick} className="hover:text-white relative">
+                        {repeatMode === 0 && <i className="fa-solid fa-repeat"></i>}
+                        {repeatMode === 1 && <i className="fa-solid fa-shuffle"></i>}
+                        {repeatMode === 2 && (
+                            <>
+                                <i className="fa-solid fa-repeat"></i>
+                                <span className="absolute -bottom-1 text-xs font-bold hover:text-white">1</span>
+                            </>
+                        )}
                     </button>
                 </div>
 

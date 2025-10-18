@@ -83,29 +83,29 @@ function Footer() {
                     <div>
                         <h4 className="text-base font-semibold mb-4">Company</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li><Link to="/" className="hover:text-white">Home</Link></li>
-                            <li><Link to="/about" className="hover:text-white">About</Link></li>
-                            <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
+                            <li><Link to="/" className="hover:text-white" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Home</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">About</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Contact</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="text-base font-semibold mb-4">Communities</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li><a className="hover:text-white">For Artists</a></li>
-                            <li><a className="hover:text-white">Developers</a></li>
-                            <li><a className="hover:text-white">Advertising</a></li>
-                            <li><a className="hover:text-white">Investors</a></li>
-                            <li><a className="hover:text-white">Vendors</a></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">For Artists</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Developers</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Advertising</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Investors</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Vendors</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="text-base font-semibold mb-4">Premium Plans</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li><a className="hover:text-white">Premium Individual</a></li>
-                            <li><a className="hover:text-white">Premium Student</a></li>
-                            <li><a className="hover:text-white">Free Plan</a></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Premium Individual</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Premium Student</Link></li>
+                            <li><Link to="/coming-soon" className="hover:text-white">Free Plan</Link></li>
                         </ul>
                     </div>
                 </div>
