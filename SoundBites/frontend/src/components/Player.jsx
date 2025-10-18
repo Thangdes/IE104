@@ -10,6 +10,7 @@ function formatTime(seconds) {
     return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+
 function Player() {
     const {
         currentSong,
@@ -20,6 +21,7 @@ function Player() {
         currentTime,
         duration,
         progress,
+        seekTo,
         volume,
         setVolume,
         isMuted,
@@ -41,6 +43,17 @@ function Player() {
     const openDetail = () => {
         if (!currentSong) return;
         navigate("/song");
+    };
+
+    // Handle progress bar click to seek
+    const handleProgressBarClick = (e) => {
+        e.stopPropagation();
+        if (!currentSong || !duration) return;
+        const bar = e.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percent = Math.max(0, Math.min(1, clickX / rect.width));
+        seekTo(percent * duration);
     };
 
     return (
@@ -111,7 +124,10 @@ function Player() {
                 {/* Progress bar */}
                 <div className="flex items-center gap-2 w-72">
                     <span className="text-xs text-gray-400">{formatTime(currentTime)}</span>
-                    <div className="relative w-full h-1 bg-gray-700 rounded">
+                    <div
+                        className="relative w-full h-1 bg-gray-700 rounded cursor-pointer"
+                        onClick={handleProgressBarClick}
+                    >
                         <div
                             className="absolute top-0 left-0 h-1 bg-gray-200 rounded"
                             style={{ width: `${progress}%` }}

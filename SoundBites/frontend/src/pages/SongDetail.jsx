@@ -9,7 +9,7 @@ function formatTime(seconds) {
 }
 
 export default function SongDetail() {
-    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration } = useSong();
+    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo } = useSong();
 
     if (!currentSong) {
         return (
@@ -18,6 +18,18 @@ export default function SongDetail() {
     }
 
     const bg = currentSong?.album?.cover_image || "/signup_bg.jpg";
+
+    // Handle progress bar click to seek
+    const handleProgressBarClick = (e) => {
+        e.stopPropagation();
+        if (!currentSong || !(duration || currentSong.duration)) return;
+        const bar = e.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const dur = duration || currentSong.duration;
+        const percent = Math.max(0, Math.min(1, clickX / rect.width));
+        seekTo(percent * dur);
+    };
 
     return (
         <div className="relative min-h-screen flex flex-col">
@@ -44,16 +56,19 @@ export default function SongDetail() {
                         <span>{formatTime(currentTime)}</span>
                         <span>{formatTime(duration || currentSong.duration)}</span>
                     </div>
-                        <div className="relative mt-2 h-1 bg-gray-600 rounded-full overflow-hidden">
-                            <div
-                                className="absolute top-0 left-0 h-1 bg-white rounded-full"
-                                style={{ width: `${progress}%` }}
-                            ></div>
-                            <div
-                                className="absolute top-[-3px] w-3 h-3 bg-white rounded-full shadow-lg"
-                                style={{ left: `${progress}%`, transform: "translateX(-50%)" }}
-                            ></div>
-                        </div>
+                    <div
+                        className="relative mt-2 h-1 bg-gray-600 rounded-full overflow-hidden cursor-pointer"
+                        onClick={handleProgressBarClick}
+                    >
+                        <div
+                            className="absolute top-0 left-0 h-1 bg-white rounded-full"
+                            style={{ width: `${progress}%` }}
+                        ></div>
+                        <div
+                            className="absolute top-[-3px] w-3 h-3 bg-white rounded-full shadow-lg"
+                            style={{ left: `${progress}%`, transform: "translateX(-50%)" }}
+                        ></div>
+                    </div>
 
                     {/* Controls (match Player layout) */}
                     <div className="flex flex-col items-center mt-8">
