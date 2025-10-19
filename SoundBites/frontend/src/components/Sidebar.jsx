@@ -18,8 +18,9 @@ function Sidebar() {
                                 <Link
                                     to="/"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
-                                    <i class="fa-solid fa-house"></i>
+                                    <i className="fa-solid fa-house"></i>
                                     <span>Home</span>
                                 </Link>
                             </li>
@@ -80,7 +81,7 @@ function Sidebar() {
                         <ul className="space-y-2">
                             <li>
                                 <Link
-                                    to="/settings"
+                                    to="/coming-soon"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                 >
                                     <i class="fa-solid fa-gear"></i>
@@ -89,7 +90,7 @@ function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    to="/subscription"
+                                    to="/coming-soon"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                 >
                                     <i class="fa-solid fa-crown"></i>
@@ -98,7 +99,7 @@ function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    to="#logout"
+                                    to="/coming-soon"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                 >
                                     <i class="fa-solid fa-right-from-bracket"></i>

@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import LoginPage from "./pages/LoginPage";
 import Signup from "./pages/Signup";
 import SongDetail from "./pages/SongDetail";
+import ComingSoon from "./pages/ComingSoon";
 
 function PlayerWrapper() {
     const { currentSong } = useSong();
@@ -61,6 +62,8 @@ function App() {
                             <Route path="/song" element={<SongDetail />} />
                             <Route path="/playlist/:id" element={<Playlist />} />
                             <Route path="/albums" element={<Album />} />
+                            <Route path="/coming-soon" element={<ComingSoon />} />
+
                             {/* Không cần route login ở đây nữa */}
                         </Routes>
                     </main>

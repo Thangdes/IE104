@@ -12,3 +12,10 @@ export async function uploadSong(formData) {
     });
     return r.json();
 }
+
+// Search API: query songs, playlists, artists
+export async function search(query) {
+    const r = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+    if (!r.ok) throw new Error("Search failed");
+    return r.json();
+}

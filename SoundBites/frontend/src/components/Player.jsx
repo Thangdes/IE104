@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSong } from "../context/SongContext";
 import { useNavigate } from "react-router-dom";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function formatTime(seconds) {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -9,6 +8,7 @@ function formatTime(seconds) {
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
 }
+
 
 function Player() {
     const {
@@ -20,13 +20,21 @@ function Player() {
         currentTime,
         duration,
         progress,
+        seekTo,
         volume,
         setVolume,
         isMuted,
         setIsMuted,
+        repeatMode,
+        setRepeatMode,
     } = useSong();
     const navigate = useNavigate();
     const [addStatus, setAddStatus] = useState("");
+
+    const handleModeClick = (e) => {
+        e.stopPropagation();
+        setRepeatMode((m) => (m + 1) % 3);
+    };
 
     // Handle volume icon click
     const handleVolumeIconClick = () => {
@@ -44,16 +52,25 @@ function Player() {
         navigate("/song");
     };
 
+    // Handle progress bar click to seek
+    const handleProgressBarClick = (e) => {
+        e.stopPropagation();
+        if (!currentSong || !duration) return;
+        const bar = e.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percent = Math.max(0, Math.min(1, clickX / rect.width));
+        seekTo(percent * duration);
+    };
+
     return (
         <div
             className="fixed bottom-0 left-0 w-full bg-[#1b1b1f] text-white px-6 py-3 flex items-center justify-between border-t border-gray-800 shadow-lg"
             onClick={openDetail}
             style={{ cursor: currentSong ? "pointer" : "default" }}
         >
-            {/* Audio element is provided by SongProvider (hidden) */}
-
             {/* Left: Song Info */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3" style={{ minWidth: 260, maxWidth: 400, width: 320 }}>
                 <img
                     src={
                         currentSong?.album?.cover_image ||
@@ -62,11 +79,11 @@ function Player() {
                     alt="Album Cover"
                     className="w-14 h-14 rounded-md"
                 />
-                <div>
-                    <p className="text-sm font-semibold">
+                <div className="truncate w-56">
+                    <p className="text-sm font-semibold truncate">
                         {currentSong?.title || "Chọn một bài hát để phát"}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 truncate">
                         {currentSong?.artist?.name || ""}
                     </p>
                 </div>
@@ -104,15 +121,25 @@ function Player() {
                     <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-forward-step"></i>
                     </button>
-                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
-                        <i className="fa-solid fa-repeat"></i>
+                    <button onClick={handleModeClick} className="hover:text-white relative">
+                        {repeatMode === 0 && <i className="fa-solid fa-repeat"></i>}
+                        {repeatMode === 1 && <i className="fa-solid fa-shuffle"></i>}
+                        {repeatMode === 2 && (
+                            <>
+                                <i className="fa-solid fa-repeat"></i>
+                                <span className="absolute -bottom-1 text-xs font-bold hover:text-white">1</span>
+                            </>
+                        )}
                     </button>
                 </div>
 
                 {/* Progress bar */}
                 <div className="flex items-center gap-2 w-72">
                     <span className="text-xs text-gray-400">{formatTime(currentTime)}</span>
-                    <div className="relative w-full h-1 bg-gray-700 rounded">
+                    <div
+                        className="relative w-full h-1 bg-gray-700 rounded cursor-pointer"
+                        onClick={handleProgressBarClick}
+                    >
                         <div
                             className="absolute top-0 left-0 h-1 bg-gray-200 rounded"
                             style={{ width: `${progress}%` }}
