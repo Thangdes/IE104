@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import Sidebar from "./components/Sidebar";
 
 import Home from "./pages/Home";
-import Album from "./pages/Album";
+import Album from "./pages/Album_temp";
 import AlbumDetail from "./pages/AlbumDetail";
 import Playlist from "./pages/Playlist";
 import PlaylistDetail from "./pages/PlaylistDetail";
