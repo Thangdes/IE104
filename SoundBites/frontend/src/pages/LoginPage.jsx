@@ -1,6 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        try {
+            const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+            const res = await fetch(`${apiBase}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.error || "Login failed");
+            } else {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+                window.location.href = "/";
+            }
+        } catch (err) {
+            setError("Network error");
+        }
+        setLoading(false);
+    };
+
     return (
         <>
             <style jsx>{`
@@ -19,7 +49,6 @@ const Login = () => {
                 .animate-float { animation: float 6s infinite ease-in-out; }
                 .animate-wave { animation: wave 1.5s infinite ease-in-out; }
                 .animate-shimmer { animation: shimmer 3s infinite; }
-                
                 input[type="checkbox"]:checked + div {
                     background-color: #10b981;
                     border-color: #10b981;
@@ -35,18 +64,15 @@ const Login = () => {
                     border-width: 0 2px 2px 0;
                     transform: rotate(45deg);
                 }
-                
                 .form-input:focus + .input-highlight {
                     opacity: 1;
                     transform: scaleX(1);
                 }
-                
                 .submit-button:active .button-wave {
                     width: 300px;
                     height: 300px;
                 }
             `}</style>
-
             <div className="min-h-screen flex relative overflow-hidden bg-black">
                 {/* Background */}
                 <div className="absolute inset-0">
@@ -60,7 +86,6 @@ const Login = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-black via-green-900/10 to-black" />
                 </div>
-
                 {/* Particles */}
                 <div className="absolute inset-0 pointer-events-none">
                     {[...Array(5)].map((_, i) => (
@@ -76,24 +101,13 @@ const Login = () => {
                         />
                     ))}
                 </div>
-
                 {/* Login Content */}
                 <div className="relative z-10 w-full flex justify-center items-center p-6 sm:p-8 md:p-10 lg:p-12 xl:p-16">
                     {/* Card */}
                     <div
-                        className="
-                            bg-[#121212]/95 border border-gray-800 rounded-2xl 
-                            p-6 sm:p-8 md:p-10 
-                            w-full max-w-[420px] sm:max-w-[460px] md:max-w-[500px]
-                            min-h-[90vh] sm:min-h-[85vh]
-                            flex flex-col justify-center
-                            backdrop-blur-xl shadow-2xl relative overflow-hidden
-                            translate-x-0 sm:translate-x-8 md:translate-x-16 lg:translate-x-24 xl:translate-x-70
-                        "
+                        className="bg-[#121212]/95 border border-gray-800 rounded-2xl p-6 sm:p-8 md:p-10 w-full max-w-[420px] sm:max-w-[460px] md:max-w-[500px] min-h-[90vh] sm:min-h-[85vh] flex flex-col justify-center backdrop-blur-xl shadow-2xl relative overflow-hidden translate-x-0 sm:translate-x-8 md:translate-x-16 lg:translate-x-24 xl:translate-x-70"
                     >
-
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-shimmer" />
-
                         {/* Header */}
                         <div className="text-center mb-6 sm:mb-8">
                             <div className="mb-4 sm:mb-6">
@@ -104,7 +118,6 @@ const Login = () => {
                                     BITE THE BEAT
                                 </div>
                             </div>
-
                             <div className="flex justify-center gap-1.5 sm:gap-2 mt-4">
                                 {[...Array(4)].map((_, i) => (
                                     <div
@@ -115,7 +128,6 @@ const Login = () => {
                                 ))}
                             </div>
                         </div>
-
                         {/* Form */}
                         <div className="relative px-2 sm:px-4 md:px-6">
                             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white text-center mb-2">
@@ -124,8 +136,7 @@ const Login = () => {
                             <p className="text-gray-400 text-center mb-6 text-xs sm:text-sm">
                                 Sign in to your account
                             </p>
-
-                            <form className="space-y-4 sm:space-y-5">
+                            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
                                 {/* Email Input */}
                                 <div>
                                     <label className="block text-white text-xs sm:text-sm font-medium mb-2 tracking-wide">
@@ -144,11 +155,12 @@ const Login = () => {
                                             className="form-input w-full pl-11 sm:pl-14 pr-4 py-3 sm:py-4 bg-white/8 border border-gray-700 rounded-xl sm:rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-2 sm:focus:ring-4 focus:ring-green-500/20 transition-all duration-300 text-sm sm:text-base"
                                             placeholder="Enter your email"
                                             required
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
                                         />
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
                                 </div>
-
                                 {/* Password Input */}
                                 <div>
                                     <label className="block text-white text-xs sm:text-sm font-medium mb-2 tracking-wide">
@@ -167,11 +179,12 @@ const Login = () => {
                                             className="form-input w-full pl-11 sm:pl-14 pr-4 py-3 sm:py-4 bg-white/8 border border-gray-700 rounded-xl sm:rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-2 sm:focus:ring-4 focus:ring-green-500/20 transition-all duration-300 text-sm sm:text-base"
                                             placeholder="Enter your password"
                                             required
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
                                         />
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
                                 </div>
-
                                 {/* Options */}
                                 <div className="flex justify-between items-center text-xs sm:text-sm">
                                     <label className="checkbox-wrapper flex items-center cursor-pointer text-gray-400">
@@ -183,13 +196,17 @@ const Login = () => {
                                         Forgot password?
                                     </a>
                                 </div>
-
+                                {/* Error Message */}
+                                {error && (
+                                    <div className="text-red-500 text-xs text-center mt-2">{error}</div>
+                                )}
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
-                                    className="submit-button w-full bg-green-500 text-black font-semibold py-3 sm:py-4 rounded-xl sm:rounded-2xl hover:bg-green-400 hover:transform hover:-translate-y-1 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-green-500/30 transition-all duration-300 relative overflow-hidden group text-sm sm:text-base mt-2"
+                                    className="submit-button w-full bg-white text-[#1b1b1f] font-bold text-lg leading-[22px] py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 hover:bg-[#919199] hover:scale-[1.05] relative overflow-hidden group text-sm sm:text-base mt-2"
+                                    disabled={loading}
                                 >
-                                    <span className="button-text relative z-10">Sign In</span>
+                                    <span className="button-text relative z-10">{loading ? "Signing In..." : "Sign In"}</span>
                                     <div className="button-wave absolute top-1/2 left-1/2 w-0 h-0 bg-white/30 rounded-full transition-all duration-600 transform -translate-x-1/2 -translate-y-1/2" />
                                 </button>
                             </form>
@@ -208,7 +225,8 @@ const Login = () => {
                             <div className="space-y-3 sm:space-y-4">
                                 <button
                                     type="button"
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 border border-gray-700 rounded-xl sm:rounded-2xl text-white hover:border-green-500 hover:text-green-500 transition-all duration-300 text-xs sm:text-sm"
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 border border-gray-700 rounded-xl sm:rounded-2xl text-white transition-all duration-300 text-xs sm:text-sm opacity-60 cursor-not-allowed"
+                                    disabled
                                 >
                                     <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -220,7 +238,8 @@ const Login = () => {
                                 </button>
                                 <button
                                     type="button"
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 border border-gray-700 rounded-xl sm:rounded-2xl text-white hover:border-green-500 hover:text-green-500 transition-all duration-300 text-xs sm:text-sm bg-black/50"
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 border border-gray-700 rounded-xl sm:rounded-2xl text-white transition-all duration-300 text-xs sm:text-sm bg-black/50 opacity-60 cursor-not-allowed"
+                                    disabled
                                 >
                                     <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />

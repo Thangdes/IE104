@@ -1,15 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
 function Sidebar() {
+    const [showPopup, setShowPopup] = useState(false);
+    const navigate = useNavigate();
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+        user = null;
+    }
+
+    const handleProtectedNav = (path) => {
+        if (user) {
+            navigate(path);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+            setShowPopup(true);
+        }
+    };
+
     return (
         <aside className="w-64 flex-shrink-0">
             <div className="sticky top-0 h-screen overflow-y-auto px-4 py-6 bg-[#1b1b1f] rounded-r-xl">
                 <div>
                     <div className="flex items-center justify-between text-lg font-semibold mt-4 mb-4 border-b border-gray-700 pb-2">
                         <span>Menu</span>
-                        <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[#28282e] transition">
-                            <i className="fa-solid fa-plus text-white text-lg"></i>
-                        </button>
                     </div>
 
                     <nav>
@@ -35,14 +51,13 @@ function Sidebar() {
                                 </Link>
                             </li>
                             <li>
-                                <Link
-                                    to="/library"
-                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
-                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                                <button
+                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
+                                    onClick={() => handleProtectedNav("/library")}
                                 >
-                                    <i class="fa-solid fa-heart"></i>
+                                    <i className="fa-solid fa-heart"></i>
                                     <span>Likes</span>
-                                </Link>
+                                </button>
                             </li>
                             <li>
                                 <Link
@@ -65,14 +80,13 @@ function Sidebar() {
                                 </Link>
                             </li>
                             <li>
-                                <Link
-                                    to="/following"
-                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
-                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                                <button
+                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
+                                    onClick={() => handleProtectedNav("/following")}
                                 >
-                                    <i class="fa-solid fa-user-plus"></i>
+                                    <i className="fa-solid fa-user-plus"></i>
                                     <span>Following</span>
-                                </Link>
+                                </button>
                             </li>
                         </ul>
                     </nav>
@@ -105,19 +119,44 @@ function Sidebar() {
                                 </Link>
                             </li>
                             <li>
-                                <Link
-                                    to="/coming-soon"
-                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
-                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                                <button
+                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
+                                    onClick={() => {
+                                        localStorage.removeItem("user");
+                                        localStorage.removeItem("token");
+                                        navigate("/");
+                                        window.scrollTo({ top: 0, behavior: "smooth" });
+                                    }}
                                 >
-                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                    <i className="fa-solid fa-right-from-bracket"></i>
                                     <span>Log out</span>
-                                </Link>
+                                </button>
                             </li>
                         </ul>
                     </nav>
                 </div>
-</div>
+            </div>
+
+            {/* Popup for login required */}
+            {showPopup && (
+                <div
+                    className="fixed inset-0 flex items-center justify-center z-50 bg-black/40"
+                    onClick={() => setShowPopup(false)}
+                >
+                    <div
+                        className="bg-[#23232a] rounded-xl shadow-lg p-8 text-center"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <h2 className="text-white text-xl font-bold mb-4">Please sign in to use this feature</h2>
+                        <button
+                            className="bg-white text-[#1b1b1f] font-bold px-6 py-2 rounded-xl hover:bg-[#626267] hover:text-[#FEFEFE] transition-all duration-300"
+                            onClick={() => { setShowPopup(false); navigate("/login"); }}
+                        >
+                            Sign in
+                        </button>
+                    </div>
+                </div>
+            )}
         </aside>
     );
 }
