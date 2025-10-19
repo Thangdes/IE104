@@ -6,6 +6,7 @@ import playlistsRouter from "./routes/playlists.js";
 import searchRouter from "./routes/search.js";
 import albumsRouter from "./routes/albums.js";
 import authRouter from "./routes/auth.js";
+import favoritesRouter from "./routes/favorites.js";
 
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ app.use("/api/playlists", playlistsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/albums", albumsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/favorites", favoritesRouter);
 
 // Start server
 const PORT = process.env.PORT || 4000;

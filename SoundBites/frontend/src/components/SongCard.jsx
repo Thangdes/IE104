@@ -1,6 +1,57 @@
 import React from "react";
 
-function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl }) {
+// Helper to get JWT token from localStorage
+function getToken() {
+    return localStorage.getItem("token");
+}
+
+
+import { useEffect, useState } from "react";
+
+function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl, song_id }) {
+    const [liked, setLiked] = useState(false);
+    // Get token and update liked state when token or song_id changes
+    const token = getToken();
+    useEffect(() => {
+        async function fetchLiked() {
+            if (!token || !song_id) {
+                console.log(`[SongCard] Skipping fetchLiked: token=${token}, song_id=${song_id}`);
+                return setLiked(false);
+            }
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+            try {
+                const res = await fetch(`${API_BASE}/favorites/is-liked?songId=${song_id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                setLiked(!!data.liked);
+            } catch (err) {
+                console.log(`[SongCard] song_id: ${song_id}, error fetching liked:`, err);
+                setLiked(false);
+            }
+        }
+        fetchLiked();
+    }, [song_id, token]);
+
+    const handleLike = async (e) => {
+        e.stopPropagation();
+        const token = getToken();
+        if (!token || !song_id) return;
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+        try {
+            const res = await fetch(`${API_BASE}/favorites/${liked ? "unlike" : "like"}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ songId: song_id })
+            });
+            const data = await res.json();
+            if (data.success) setLiked(!liked);
+        } catch { }
+    };
+
     return (
         <div className="flex flex-col items-center text-center bg-[#38373D] hover:bg-[#323137] rounded-xl transition cursor-pointer group p-3">
             {/* Album Cover */}
@@ -22,6 +73,13 @@ function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl }) {
                 >
                     <i className="fa-solid fa-play"></i>
                 </button>
+                <span
+                    onClick={handleLike}
+                    className="absolute top-2 right-2 text-xl cursor-pointer"
+                    title={liked ? "Bỏ thích" : "Thích"}
+                >
+                    <i className={liked ? "fa-solid fa-heart text-green-500" : "fa-regular fa-heart text-gray-400 hover:text-green-500"}></i>
+                </span>
             </div>
 
             {/* Info */}
