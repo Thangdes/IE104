@@ -4,6 +4,7 @@ import cors from "cors";
 import songsRouter from "./routes/songs.js";
 import playlistsRouter from "./routes/playlists.js";
 import searchRouter from "./routes/search.js";
+import albumsRouter from "./routes/albums.js";
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use("/api/songs", songsRouter);
 app.use("/api/playlists", playlistsRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/albums", albumsRouter);
 
 // Start server
 const PORT = process.env.PORT || 5000;

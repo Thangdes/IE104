@@ -1,6 +1,5 @@
 import express from "express";
-import { listPlaylists, getPlaylistDetail, addSongToPlaylist } from "../controllers/playlistController.js";
-import { removeSongFromPlaylist } from "../controllers/playlistController.js";
+import { listPlaylists, getPlaylistDetail, addSongToPlaylist, removeSongFromPlaylist } from "../controllers/playlistController.js";
 
 const router = express.Router();
 router.post("/:id/add-song", addSongToPlaylist);

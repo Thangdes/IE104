@@ -4,7 +4,7 @@ function PlaylistCard({ name, description, coverImage, owner, onClick }) {
     return (
         <div
             onClick={onClick}
-            className="group relative bg-[#1b1b1f] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+            className="group relative bg-[#38373D] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
         >
             {/* Cover Image */}
             <div className="relative aspect-square overflow-hidden">
