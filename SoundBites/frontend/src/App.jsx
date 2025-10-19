@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 import Sidebar from "./components/Sidebar";
 
 import Home from "./pages/Home";
+import Album from "./pages/album";
+import Playlist from "./pages/Playlist";
 import Search from "./pages/Search";
 import Library from "./pages/Library";
 import Profile from "./pages/Profile";
@@ -58,6 +60,8 @@ function App() {
                             <Route path="/library" element={<Library />} />
                             <Route path="/profile" element={<Profile />} />
                             <Route path="/song" element={<SongDetail />} />
+                            <Route path="/playlist/:id" element={<Playlist />} />
+                            <Route path="/albums" element={<Album />} />
                             <Route path="/coming-soon" element={<ComingSoon />} />
 
                             {/* Không cần route login ở đây nữa */}
