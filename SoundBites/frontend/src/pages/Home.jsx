@@ -73,6 +73,7 @@ function Home() {
                             fileUrl={song.file_url}
                             playCount={song.play_count}
                             onPlay={() => setCurrentSong(song)}
+                            song_id={song.song_id}
                         />
                     ))}
                 </div>

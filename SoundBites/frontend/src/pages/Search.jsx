@@ -129,6 +129,7 @@ function Search() {
                                         coverImage={song.album?.cover_image}
                                         playCount={song.play_count}
                                         onPlay={() => handlePlaySong(song)}
+                                        song_id={song.song_id}
                                     />
                                 ))}
                             </div>

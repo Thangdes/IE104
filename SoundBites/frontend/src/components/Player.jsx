@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSong } from "../context/SongContext";
 import { useNavigate } from "react-router-dom";
 
+// Helper to get JWT token from localStorage
+function getToken() {
+    return localStorage.getItem("token");
+}
+
 function formatTime(seconds) {
     if (!seconds || isNaN(seconds)) return "0:00";
     const m = Math.floor(seconds / 60);
@@ -34,6 +39,47 @@ function Player() {
     } = useSong();
     const navigate = useNavigate();
     const [addStatus, setAddStatus] = useState("");
+
+    // Like state
+    const [liked, setLiked] = useState(false);
+    useEffect(() => {
+        async function fetchLiked() {
+            if (!currentSong) return setLiked(false);
+            const token = getToken();
+            if (!token) return setLiked(false);
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+            try {
+                const res = await fetch(`${API_BASE}/favorites/is-liked?songId=${currentSong.song_id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                setLiked(!!data.liked);
+            } catch {
+                setLiked(false);
+            }
+        }
+        fetchLiked();
+    }, [currentSong]);
+
+    const handleLike = async (e) => {
+        e.stopPropagation();
+        if (!currentSong) return;
+        const token = getToken();
+        if (!token) return;
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+        try {
+            const res = await fetch(`${API_BASE}/favorites/${liked ? "unlike" : "like"}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ songId: currentSong.song_id })
+            });
+            const data = await res.json();
+            if (data.success) setLiked(!liked);
+        } catch { }
+    };
 
     const handleModeClick = (e) => {
         e.stopPropagation();
@@ -92,7 +138,9 @@ function Player() {
                     </p>
                 </div>
                 <button onClick={(e) => e.stopPropagation()} className="ml-3 text-gray-400 hover:text-green-500">
-                    <i className="fa-regular fa-heart"></i>
+                    <span onClick={handleLike} title={liked ? "Bỏ thích" : "Thích"}>
+                        <i className={liked ? "fa-solid fa-heart text-green-500" : "fa-regular fa-heart"}></i>
+                    </span>
                 </button>
             </div>
 
@@ -193,7 +241,7 @@ function Player() {
                         } catch (err) {
                             setAddStatus("Lỗi khi thêm vào playlist!");
                         }
-                        setTimeout(() => setAddStatus("") , 2000);
+                        setTimeout(() => setAddStatus(""), 2000);
                     }}
                     className="hover:text-white"
                     title="Thêm vào playlist"
