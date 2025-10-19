@@ -95,6 +95,7 @@ function Home() {
                     {latestAlbums.map((album) => (
                         <AlbumCard
                             key={album.album_id}
+                            album_id={album.album_id}
                             title={album.title}
                             artist={album.artist?.name}
                             coverImage={album.cover_image}
@@ -120,6 +121,7 @@ function Home() {
                     {playlists.map((playlist) => (
                         <PlaylistCard
                             key={playlist.playlist_id}
+                            id={playlist.playlist_id}
                             name={playlist.name}
                             description={playlist.description}
                             coverImage={playlist.cover_image}

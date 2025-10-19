@@ -4,6 +4,8 @@ const SongContext = createContext();
 
 export function SongProvider({ children }) {
     const [currentSong, setCurrentSong] = useState(null);
+    const [queue, setQueue] = useState([]); // array of songs
+    const [currentQueueIndex, setCurrentQueueIndex] = useState(-1); // index in queue
 
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -37,6 +39,14 @@ export function SongProvider({ children }) {
                 // repeat one
                 audio.currentTime = 0;
                 audio.play().catch(() => {});
+            } else if (queue.length > 0 && currentQueueIndex < queue.length - 1) {
+                // play next in queue
+                playNext();
+            } else if (repeatMode === 1 && queue.length > 0) {
+                // repeat all: loop to start
+                setCurrentQueueIndex(0);
+                setCurrentSong(queue[0]);
+                setIsPlaying(true);
             } else {
                 setIsPlaying(false);
             }
@@ -51,7 +61,8 @@ export function SongProvider({ children }) {
             audio.removeEventListener("loadedmetadata", onLoaded);
             audio.removeEventListener("ended", onEnded);
         };
-    }, [isPlaying, repeatMode]);
+        // eslint-disable-next-line
+    }, [isPlaying, repeatMode, queue, currentQueueIndex]);
 
     // sync volume/mute
     useEffect(() => {
@@ -81,6 +92,13 @@ export function SongProvider({ children }) {
         }
     }, [currentSong]);
 
+    // when queue or currentQueueIndex changes, update currentSong
+    useEffect(() => {
+        if (queue.length > 0 && currentQueueIndex >= 0 && currentQueueIndex < queue.length) {
+            setCurrentSong(queue[currentQueueIndex]);
+        }
+    }, [queue, currentQueueIndex]);
+
     // play/pause side effect
     useEffect(() => {
         const audio = audioRef.current;
@@ -103,6 +121,38 @@ export function SongProvider({ children }) {
         audio.currentTime = seconds;
     };
 
+    // Set a new queue and start playing from index (default 0)
+    const playQueue = (songs, startIndex = 0) => {
+        setQueue(songs);
+        setCurrentQueueIndex(startIndex);
+        if (songs && songs.length > 0 && startIndex >= 0 && startIndex < songs.length) {
+            setCurrentSong(songs[startIndex]);
+        }
+        setIsPlaying(true);
+    };
+
+    // Play next song in queue
+    const playNext = () => {
+        if (queue.length === 0) return;
+        let nextIdx = currentQueueIndex + 1;
+        if (nextIdx >= queue.length) {
+            nextIdx = 0; // loop to start
+        }
+        setCurrentQueueIndex(nextIdx);
+        setIsPlaying(true);
+    };
+
+    // Play previous song in queue
+    const playPrev = () => {
+        if (queue.length === 0) return;
+        let prevIdx = currentQueueIndex - 1;
+        if (prevIdx < 0) {
+            prevIdx = queue.length - 1; // loop to end
+        }
+        setCurrentQueueIndex(prevIdx);
+        setIsPlaying(true);
+    };
+
     const value = {
         currentSong,
         setCurrentSong,
@@ -120,6 +170,14 @@ export function SongProvider({ children }) {
         setIsMuted,
         repeatMode,
         setRepeatMode,
+        // queue features
+        queue,
+        currentQueueIndex,
+        playQueue,
+        playNext,
+        playPrev,
+        setQueue,
+        setCurrentQueueIndex,
     };
 
     return (

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AlbumCard from "../components/AlbumCard";
 import { useNavigate } from "react-router-dom";
+import { useSong } from "../context/SongContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
 
@@ -8,6 +9,7 @@ export default function Album() {
     const [albums, setAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { playQueue } = useSong();
 
     useEffect(() => {
         async function fetchAlbums() {
@@ -48,13 +50,13 @@ export default function Album() {
                         albums.map((album) => (
                             <div
                                 key={album.album_id}
-                                className="cursor-pointer hover:scale-[1.03] transition-all"
-                                onClick={() => navigate(`/albums/${album.album_id}`)}
+                                className="relative group hover:scale-[1.03] transition-all"
                             >
                                 <AlbumCard
                                     title={album.title}
                                     artist={album.artist?.name}
                                     coverImage={album.cover_image}
+                                    album_id={album.album_id}
                                 />
                             </div>
                         ))

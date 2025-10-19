@@ -27,13 +27,17 @@ function Player() {
         setIsMuted,
         repeatMode,
         setRepeatMode,
+        queue,
+        currentQueueIndex,
+        playNext,
+        playPrev,
     } = useSong();
     const navigate = useNavigate();
     const [addStatus, setAddStatus] = useState("");
 
     const handleModeClick = (e) => {
         e.stopPropagation();
-        setRepeatMode((m) => (m + 1) % 3);
+        setRepeatMode((m) => (m + 1) % 3); // 0: no loop, 1: repeat all, 2: repeat one
     };
 
     // Handle volume icon click
@@ -102,7 +106,15 @@ function Player() {
                     <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
                         <i className="fa-solid fa-shuffle"></i>
                     </button>
-                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (queue.length > 0) playPrev();
+                        }}
+                        className={`hover:text-white ${queue.length === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                        disabled={queue.length === 0}
+                        title="Previous"
+                    >
                         <i className="fa-solid fa-backward-step"></i>
                     </button>
 
@@ -118,12 +130,20 @@ function Player() {
                         <i className={`fa-solid ${isPlaying ? "fa-pause" : "fa-play"}`}></i>
                     </button>
 
-                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (queue.length > 0) playNext();
+                        }}
+                        className={`hover:text-white ${queue.length === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                        disabled={queue.length === 0}
+                        title="Next"
+                    >
                         <i className="fa-solid fa-forward-step"></i>
                     </button>
                     <button onClick={handleModeClick} className="hover:text-white relative">
-                        {repeatMode === 0 && <i className="fa-solid fa-repeat"></i>}
-                        {repeatMode === 1 && <i className="fa-solid fa-shuffle"></i>}
+                        {repeatMode === 0 && <i className="fa-solid fa-repeat text-gray-700"></i>}
+                        {repeatMode === 1 && <i className="fa-solid fa-repeat"></i>}
                         {repeatMode === 2 && (
                             <>
                                 <i className="fa-solid fa-repeat"></i>

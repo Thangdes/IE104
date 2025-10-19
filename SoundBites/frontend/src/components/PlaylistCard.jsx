@@ -1,9 +1,33 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useSong } from "../context/SongContext";
 
-function PlaylistCard({ name, description, coverImage, owner, onClick }) {
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+
+function PlaylistCard({ id, name, description, coverImage, owner }) {
+    const navigate = useNavigate();
+    const { playQueue } = useSong();
+
+    const handlePlay = async (e) => {
+        if (e) e.stopPropagation();
+        try {
+            const res = await fetch(`${API_BASE}/playlists/${id}`);
+            const data = await res.json();
+            if (Array.isArray(data.songs) && data.songs.length > 0) {
+                playQueue(data.songs, 0);
+            }
+        } catch (err) {
+            console.error("Failed to play playlist:", err);
+        }
+    };
+
+    const handleCardClick = () => {
+        navigate(`/playlists/${id}`);
+    };
+
     return (
         <div
-            onClick={onClick}
+            onClick={handleCardClick}
             className="group relative bg-[#38373D] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
         >
             {/* Cover Image */}
@@ -17,12 +41,20 @@ function PlaylistCard({ name, description, coverImage, owner, onClick }) {
                 {/* Overlay */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 flex items-end justify-between p-4">
                     {/* Bottom-left Play Button */}
-                    <button className="text-white rounded-full p-3 shadow-lg hover:scale-110 transition-transform">
+                    <button
+                        className="text-white rounded-full p-3 shadow-lg hover:scale-110 transition-transform"
+                        onClick={handlePlay}
+                        title="Play Playlist"
+                    >
                         <i className="fa-solid fa-circle-play text-2xl"></i>
                     </button>
 
                     {/* Bottom-right Info Button */}
-                    <button className="text-white rounded-full p-3 shadow-lg hover:scale-110 transition-transform">
+                    <button
+                        className="text-white rounded-full p-3 shadow-lg hover:scale-110 transition-transform"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/playlists/${id}`); }}
+                        title="Playlist Info"
+                    >
                         <i className="fa-solid fa-circle-info text-2xl"></i>
                     </button>
                 </div>

@@ -5,7 +5,7 @@ function Navbar() {
         <header className="top-0 left-0 w-full bg-[#1b1b1f] backdrop-blur-sm shadow-lg pt-2 pb-2 z-50">
             <div className="mx-auto px-6 py-3 flex items-center justify-between">
                 {/* Logo Section */}
-                <Link to="/home" className="flex items-center gap-3 group">
+                <Link to="/" className="flex items-center gap-3 group">
                     <img
                         src="logo.png"
                         alt="Site Logo"
