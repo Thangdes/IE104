@@ -28,6 +28,7 @@ function Sidebar() {
                                 <Link
                                     to="/search"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                     <span>Search</span>
@@ -37,6 +38,7 @@ function Sidebar() {
                                 <Link
                                     to="/library"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-heart"></i>
                                     <span>Likes</span>
@@ -44,8 +46,9 @@ function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    to="/playlist/1"
+                                    to="/playlist"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i className="fa-solid fa-list"></i>
                                     <span>Playlists</span>
@@ -55,6 +58,7 @@ function Sidebar() {
                                 <Link
                                     to="/albums"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-record-vinyl"></i>
                                     <span>Albums</span>
@@ -64,6 +68,7 @@ function Sidebar() {
                                 <Link
                                     to="/following"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-user-plus"></i>
                                     <span>Following</span>
@@ -83,6 +88,7 @@ function Sidebar() {
                                 <Link
                                     to="/coming-soon"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-gear"></i>
                                     <span>Settings</span>
@@ -92,6 +98,7 @@ function Sidebar() {
                                 <Link
                                     to="/coming-soon"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-crown"></i>
                                     <span>Subscription</span>
@@ -101,6 +108,7 @@ function Sidebar() {
                                 <Link
                                     to="/coming-soon"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
                                     <i class="fa-solid fa-right-from-bracket"></i>
                                     <span>Log out</span>

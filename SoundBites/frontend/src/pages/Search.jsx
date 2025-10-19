@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SongCard from "../components/SongCard";
 import PlaylistCard from "../components/PlaylistCard";
+import AlbumCard from "../components/AlbumCard";
 import { search as searchAPI } from "../services/api";
 import { useSong } from "../context/SongContext";
 
@@ -140,20 +141,12 @@ function Search() {
                             <h2 className="text-2xl font-bold mb-6">Albums</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                                 {searchResults.albums.map((album) => (
-                                    <div
+                                    <AlbumCard
                                         key={album.album_id}
-                                        className="flex flex-col items-center text-center group cursor-pointer bg-[#23232a] rounded-xl p-4 hover:bg-[#28282e] transition"
-                                    >
-                                        <div className="w-32 h-32 mb-3 rounded-lg overflow-hidden bg-gray-700 flex items-center justify-center">
-                                            <img
-                                                src={album.cover_image || "https://i.scdn.co/image/ab67616d00004851d7812467811a7da6e6a44902"}
-                                                alt={album.title}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <h3 className="text-white font-semibold text-lg truncate w-full mb-1">{album.title}</h3>
-                                        <p className="text-gray-400 text-sm">{album.artist?.name || "Unknown Artist"}</p>
-                                    </div>
+                                        title={album.title}
+                                        artist={album.artist?.name}
+                                        coverImage={album.cover_image}
+                                    />
                                 ))}
                             </div>
                         </section>

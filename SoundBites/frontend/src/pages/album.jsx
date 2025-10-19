@@ -1,44 +1,68 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import AlbumCard from "../components/AlbumCard";
+import { useNavigate } from "react-router-dom";
 
-const albums = [
-  {
-    id: 1,
-    name: "Chill Vibes",
-    artist: "Various Artists",
-    cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
-    description: "Những bản nhạc chill thư giãn cho ngày dài."
-  },
-  {
-    id: 2,
-    name: "Top Hits 2025",
-    artist: "Various Artists",
-    cover: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-    description: "Tổng hợp các hit nổi bật năm 2025."
-  },
-  {
-    id: 3,
-    name: "Indie Love",
-    artist: "Indie Band",
-    cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-    description: "Nhạc indie nhẹ nhàng, sâu lắng."
-  }
-];
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
 
 export default function Album() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-800 to-black text-white p-8">
-      <h1 className="text-4xl font-bold mb-8">Albums</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {albums.map(album => (
-          <div key={album.id} className="bg-gray-900 rounded-lg shadow-lg p-6 flex flex-col items-center">
-            <img src={album.cover} alt={album.name} className="w-40 h-40 object-cover rounded mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">{album.name}</h2>
-            <div className="text-gray-400 mb-2">{album.artist}</div>
-            <p className="text-gray-300 text-center mb-4">{album.description}</p>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full">Xem chi tiết</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+    const [albums, setAlbums] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        async function fetchAlbums() {
+            setLoading(true);
+            try {
+                const res = await fetch(`${API_BASE}/albums`);
+                const data = await res.json();
+                setAlbums(data);
+            } catch (error) {
+                setAlbums([]);
+            }
+            setLoading(false);
+        }
+        fetchAlbums();
+    }, []);
+
+    if (loading) return <div className="text-center text-white p-8 text-4xl font-bold mb-2">Loading...</div>;
+
+    return (
+        <div className="bg-[#1b1b1f] text-white font-redhat min-h-screen px-6 py-10 rounded-xl">
+            {/* Header Section */}
+            <section className="text-center mb-12">
+                <h1 className="text-4xl font-bold mb-2">Latest Albums</h1>
+                <p className="text-gray-400">
+                    Discover the latest and greatest albums from your favorite artists.
+                </p>
+            </section>
+
+            {/* Albums Section */}
+            <section>
+                <div className="flex items-center justify-between mb-6 border-b border-gray-700 pb-2">
+                    <h2 className="text-3xl font-bold hover:text-[#767679] transition">
+                        All Albums
+                    </h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    {albums.length > 0 ? (
+                        albums.map((album) => (
+                            <div
+                                key={album.album_id}
+                                className="cursor-pointer hover:scale-[1.03] transition-all"
+                                onClick={() => navigate(`/albums/${album.album_id}`)}
+                            >
+                                <AlbumCard
+                                    title={album.title}
+                                    artist={album.artist?.name}
+                                    coverImage={album.cover_image}
+                                />
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-2xl font-bold mb-4">Không có album nào</div>
+                    )}
+                </div>
+            </section>
+        </div>
+    );
 }
