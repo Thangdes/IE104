@@ -49,18 +49,14 @@ export default function Playlist() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                     {playlists.length > 0 ? (
                         playlists.map((playlist) => (
-                            <div
+                            <PlaylistCard
                                 key={playlist.playlist_id}
-                                className="cursor-pointer hover:scale-[1.03] transition-all"
-                                onClick={() => navigate(`/playlist/${playlist.playlist_id}`)}
-                            >
-                                <PlaylistCard
-                                    name={playlist.name}
-                                    description={playlist.description}
-                                    coverImage={playlist.cover_image}
-                                    owner={playlist.user?.username || "Unknown"}
-                                />
-                            </div>
+                                id={playlist.playlist_id}
+                                name={playlist.name}
+                                description={playlist.description}
+                                coverImage={playlist.cover_image}
+                                owner={playlist.user?.username || "Unknown"}
+                            />
                         ))
                     ) : (
                         <div className="text-2xl font-bold mb-4">Không có playlist nào</div>
