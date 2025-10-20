@@ -50,3 +50,29 @@ export const isSongLiked = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+export const getAllFavorites = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user_id = decoded.id;
+        // Get all favorite songs for this user, including song, artist, and album info
+        const favorites = await prisma.favorites.findMany({
+            where: { user_id },
+            include: {
+                song: {
+                    include: {
+                        artist: true,
+                        album: true
+                    }
+                }
+            }
+        });
+        // Map to just song info (flatten)
+        const songs = favorites.map(fav => fav.song);
+        res.json(songs);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+};
