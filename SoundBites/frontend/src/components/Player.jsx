@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import QueueList from "./QueueList";
 import { useSong } from "../context/SongContext";
 import { useNavigate } from "react-router-dom";
 
@@ -39,6 +40,9 @@ function Player() {
     } = useSong();
     const navigate = useNavigate();
     const [addStatus, setAddStatus] = useState("");
+
+    // QueueList popup state
+    const [showQueue, setShowQueue] = useState(false);
 
     // Like state
     const [liked, setLiked] = useState(false);
@@ -151,7 +155,7 @@ function Player() {
                 style={{ cursor: currentSong ? "pointer" : "default" }}
             >
                 <div className="flex items-center gap-5 text-gray-300">
-                    <button onClick={(e) => e.stopPropagation()} className="hover:text-white">
+                    <button onClick={(e) => e.stopPropagation()} className="text-gray-700">
                         <i className="fa-solid fa-shuffle"></i>
                     </button>
                     <button
@@ -217,39 +221,22 @@ function Player() {
                 </div>
             </div>
 
-            {/* Right: Volume & Options (clicks here should NOT open detail) */}
+            {/* Right: Volume & Options */}
             <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }} className="flex items-center gap-4 text-gray-300">
                 {/* Thông báo khi thêm bài hát vào playlist */}
                 {addStatus && <span className="text-green-400 text-xs mr-2">{addStatus}</span>}
                 <button
-                    onClick={async (e) => {
+                    onClick={(e) => {
                         e.stopPropagation();
-                        if (!currentSong) return;
-                        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
-                        try {
-                            const res = await fetch(`${API_BASE}/playlists/1/add-song`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ songId: currentSong.song_id })
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                                setAddStatus("Đã thêm vào playlist!");
-                            } else {
-                                setAddStatus("Thêm thất bại!");
-                            }
-                        } catch (err) {
-                            setAddStatus("Lỗi khi thêm vào playlist!");
-                        }
-                        setTimeout(() => setAddStatus(""), 2000);
+                        setShowQueue(true);
                     }}
                     className="hover:text-white"
-                    title="Thêm vào playlist"
+                    title="Show current queue"
                 >
                     <i className="fa-solid fa-list"></i>
                 </button>
                 <button className="hover:text-white">
-                    <i className="fa-solid fa-desktop"></i>
+                    <i className="fa-solid fa-microphone"></i>
                 </button>
                 <div className="flex items-center gap-2 w-32">
                     <button onClick={(e) => { e.stopPropagation(); handleVolumeIconClick(); }} className="focus:outline-none">
@@ -267,7 +254,15 @@ function Player() {
                     />
                 </div>
             </div>
-        </div>
+        {/* QueueList Popup */}
+        {showQueue && (
+            <QueueList
+                queue={queue}
+                currentQueueIndex={currentQueueIndex}
+                onClose={() => setShowQueue(false)}
+            />
+        )}
+    </div>
     );
 }
 

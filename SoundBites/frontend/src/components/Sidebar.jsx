@@ -53,7 +53,7 @@ function Sidebar() {
                             <li>
                                 <button
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
-                                    onClick={() => handleProtectedNav("/library")}
+                                    onClick={() => handleProtectedNav("/favorites")}
                                 >
                                     <i className="fa-solid fa-heart"></i>
                                     <span>Likes</span>

@@ -11,7 +11,7 @@ import AlbumDetail from "./pages/AlbumDetail";
 import Playlist from "./pages/Playlist";
 import PlaylistDetail from "./pages/PlaylistDetail";
 import Search from "./pages/Search";
-import Library from "./pages/Library";
+import Likes from "./pages/Likes";
 import Profile from "./pages/Profile";
 import LoginPage from "./pages/LoginPage";
 import Signup from "./pages/Signup";
@@ -59,7 +59,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/search" element={<Search />} />
-                            <Route path="/library" element={<Library />} />
+                            <Route path="/favorites" element={<Likes />} />
                             <Route path="/profile" element={<Profile />} />
                             <Route path="/song" element={<SongDetail />} />
                             <Route path="/playlist" element={<Playlist />} />
