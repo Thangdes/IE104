@@ -23,7 +23,7 @@ function Profile() {
     };
 
     const handleUpload = () => {
-        alert("Tải ảnh lên chưa được triển khai trong demo");
+        alert("Image upload not implemented in demo");
     };
 
     const handleDeleteAccount = () => { };
@@ -32,10 +32,10 @@ function Profile() {
     const handleSave = () => {
         try {
             localStorage.setItem("userProfile", JSON.stringify(form));
-            alert("Lưu thay đổi thành công (demo)");
+            alert("Changes saved successfully (demo)");
         } catch (e) {
             console.error(e);
-            alert("Lưu thất bại");
+            alert("Save failed");
         }
     };
 
@@ -62,7 +62,7 @@ function Profile() {
                                 onClick={handleSave}
                                 className="bg-white text-[#1b1b1f] font-semibold text-lg leading-[22px] px-10 py-3 rounded-[12px] transition-all duration-300 hover:bg-[#626267] hover:text-[#FEFEFE] hover:scale-[1.05]"
                             >
-                                Lưu thay đổi
+                                Save changes
                             </button>
                         </div>
                     </div>

@@ -1,6 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
 
 const Signup = () => {
+    // State for form fields
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    // Handle form submit
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setSuccess("");
+        // Username validation: no spaces
+        if (username.includes(' ')) {
+            setError("Username cannot contain spaces");
+            return;
+        }
+        // Password validation: >6 chars, contains letter and number
+        if (password.length < 7) {
+            setError("Password must be at least 7 characters");
+            return;
+        }
+        if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+            setError("Password must contain both letters and numbers");
+            return;
+        }
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/auth/signup`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password, role: "user" })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.error || "Signup failed");
+            } else {
+                setSuccess("Signup successful! You can now log in.");
+            }
+        } catch (err) {
+            setError("Server error");
+        }
+        setLoading(false);
+    };
+
     return (
         <>
             <style jsx>{`
@@ -82,14 +135,14 @@ const Signup = () => {
                     {/* Card: dịch sang trái */}
                     <div
                         className="
-    bg-[#121212]/95 border border-gray-800 rounded-2xl 
-    p-8 sm:p-10 md:p-12 
-    w-[85%] sm:w-[360px] md:w-[380px] lg:w-[400px] xl:w-[520px]
-    min-h-[95vh]
-    flex flex-col justify-center
-    backdrop-blur-xl shadow-2xl relative overflow-hidden
-    translate-x-0 sm:-translate-x-6 md:-translate-x-20 lg:-translate-x-32 xl:-translate-x-80
-  "
+                            bg-[#121212]/95 border border-gray-800 rounded-2xl 
+                            p-8 sm:p-10 md:p-12 
+                            w-[85%] sm:w-[360px] md:w-[380px] lg:w-[400px] xl:w-[520px]
+                            min-h-[95vh]
+                            flex flex-col justify-center
+                            backdrop-blur-xl shadow-2xl relative overflow-hidden
+                            translate-x-0 sm:-translate-x-6 md:-translate-x-20 lg:-translate-x-32 xl:-translate-x-80
+                        "
                     >
 
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-shimmer" />
@@ -125,11 +178,11 @@ const Signup = () => {
                                 Join our music community
                             </p>
 
-                            <form className="space-y-4">
-                                {/* Full Name Input */}
+                            <form className="space-y-4" onSubmit={handleSubmit}>
+                                {/* Username Input */}
                                 <div>
                                     <label className="block text-white text-xs lg:text-sm font-medium mb-1.5 tracking-wide">
-                                        Full Name
+                                        Username
                                     </label>
                                     <div className="relative">
                                         <svg
@@ -142,8 +195,10 @@ const Signup = () => {
                                         <input
                                             type="text"
                                             className="form-input w-full pl-14 pr-4 py-3 bg-white/8 border border-gray-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-300 text-sm lg:text-base"
-                                            placeholder="Enter your full name"
+                                            placeholder="Enter your username"
                                             required
+                                            value={username}
+                                            onChange={e => setUsername(e.target.value)}
                                         />
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
@@ -167,6 +222,8 @@ const Signup = () => {
                                             className="form-input w-full pl-14 pr-4 py-3 bg-white/8 border border-gray-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-300 text-sm lg:text-base"
                                             placeholder="Enter your email"
                                             required
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
                                         />
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
@@ -190,6 +247,8 @@ const Signup = () => {
                                             className="form-input w-full pl-14 pr-4 py-3 bg-white/8 border border-gray-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-300 text-sm lg:text-base"
                                             placeholder="Create a password"
                                             required
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
                                         />
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
@@ -213,12 +272,15 @@ const Signup = () => {
                                             className="form-input w-full pl-14 pr-4 py-3 bg-white/8 border border-gray-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-300 text-sm lg:text-base"
                                             placeholder="Confirm your password"
                                             required
+                                            value={confirmPassword}
+                                            onChange={e => setConfirmPassword(e.target.value)}
                                         />
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
                                 </div>
 
                                 {/* Music Preferences */}
+                                {/**
                                 <div>
                                     <label className="block text-white text-xs lg:text-sm font-medium mb-1.5 tracking-wide">
                                         Favorite Music Genres
@@ -241,6 +303,7 @@ const Signup = () => {
                                         <div className="input-highlight absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-b-xl scale-x-0 transition-transform duration-300 origin-center" />
                                     </div>
                                 </div>
+                                */}
 
                                 {/* Terms and Conditions */}
                                 <div className="flex items-center text-xs lg:text-sm">
@@ -260,12 +323,17 @@ const Signup = () => {
                                     </label>
                                 </div>
 
+                                {/* Error/Success Message */}
+                                {error && <div className="text-red-500 text-xs text-center mb-2">{error}</div>}
+                                {success && <div className="text-green-500 text-xs text-center mb-2">{success}</div>}
+
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
                                     className="submit-button w-full bg-green-500 text-black font-semibold py-3 rounded-2xl hover:bg-green-400 hover:transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-green-500/30 transition-all duration-300 relative overflow-hidden group text-sm lg:text-base"
+                                    disabled={loading}
                                 >
-                                    <span className="button-text relative z-10">Create Account</span>
+                                    <span className="button-text relative z-10">{loading ? "Creating..." : "Create Account"}</span>
                                     <div className="button-wave absolute top-1/2 left-1/2 w-0 h-0 bg-white/30 rounded-full transition-all duration-600 transform -translate-x-1/2 -translate-y-1/2" />
                                 </button>
                             </form>
@@ -278,7 +346,8 @@ const Signup = () => {
                                 <div className="space-y-4">
                                     <button
                                         type="button"
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-700 rounded-2xl text-white hover:border-green-500 hover:text-green-500 transition-all duration-300 text-sm lg:text-base"
+                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-700 rounded-2xl text-white opacity-50 cursor-not-allowed text-sm lg:text-base"
+                                        disabled
                                     >
                                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -290,7 +359,8 @@ const Signup = () => {
                                     </button>
                                     <button
                                         type="button"
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-700 rounded-2xl text-white hover:border-green-500 hover:text-green-500 transition-all duration-300 text-sm lg:text-base bg-black/50"
+                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-700 rounded-2xl text-white opacity-50 cursor-not-allowed text-sm lg:text-base bg-black/50"
+                                        disabled
                                     >
                                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
