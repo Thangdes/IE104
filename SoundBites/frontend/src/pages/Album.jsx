@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import AlbumCard from "../components/AlbumCard";
-import { useNavigate } from "react-router-dom";
-import { useSong } from "../context/SongContext";
+// import { useNavigate } from "react-router-dom";
+// import { useSong } from "../context/SongContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
 
 export default function Album() {
     const [albums, setAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-    const { playQueue } = useSong();
+    // const navigate = useNavigate();
+    // const { playQueue } = useSong();
 
     useEffect(() => {
         async function fetchAlbums() {
@@ -18,7 +18,7 @@ export default function Album() {
                 const res = await fetch(`${API_BASE}/albums`);
                 const data = await res.json();
                 setAlbums(data);
-            } catch (error) {
+            } catch {
                 setAlbums([]);
             }
             setLoading(false);
@@ -57,6 +57,7 @@ export default function Album() {
                                     artist={album.artist?.name}
                                     coverImage={album.cover_image}
                                     album_id={album.album_id}
+                                    artistId={album.artist_id}
                                 />
                             </div>
                         ))

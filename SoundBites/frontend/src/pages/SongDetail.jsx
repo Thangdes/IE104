@@ -8,8 +8,84 @@ function formatTime(seconds) {
     return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+import { useNavigate } from "react-router-dom";
+
 export default function SongDetail() {
     const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo, repeatMode, setRepeatMode, queue, playNext, playPrev } = useSong();
+    const navigate = useNavigate();
+    const [isFullscreen, setIsFullscreen] = React.useState(false);
+    const detailRef = React.useRef();
+    const [addStatus, setAddStatus] = React.useState("");
+    // State cho popup chọn playlist
+    const [showPlaylistMenu, setShowPlaylistMenu] = React.useState(false);
+    const [playlists, setPlaylists] = React.useState([]); // Danh sách playlist user
+
+    // Toàn màn hình
+    const handleFullscreen = (e) => {
+        e.stopPropagation();
+        if (!isFullscreen) {
+            detailRef.current?.requestFullscreen?.();
+            setIsFullscreen(true);
+        } else {
+            document.exitFullscreen?.();
+            setIsFullscreen(false);
+        }
+    };
+    // Hiện dropmenu chọn playlist và lấy danh sách playlist user
+    const handleAddToPlaylist = async (e) => {
+        e.stopPropagation();
+        setShowPlaylistMenu((prev) => !prev);
+        if (!showPlaylistMenu) {
+            try {
+                const token = localStorage.getItem("token");
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+                const res = await fetch(`${API_BASE}/playlists`, {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {}
+                });
+                const data = await res.json();
+                setPlaylists(Array.isArray(data) ? data : []);
+            } catch {
+                setPlaylists([]);
+            }
+        }
+    };
+
+    // Đóng dropmenu
+    const handleCloseMenu = () => {
+        setShowPlaylistMenu(false);
+    };
+
+    // Thêm bài hát vào playlist khi chọn
+    const handleSelectPlaylist = async (playlistId) => {
+        if (!currentSong) return;
+        try {
+            const token = localStorage.getItem("token");
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+            const res = await fetch(`${API_BASE}/playlists/${playlistId}/add-song`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ songId: currentSong.song_id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAddStatus("Đã thêm vào playlist!");
+            } else {
+                setAddStatus("Thêm vào playlist thất bại!");
+            }
+        } catch {
+            setAddStatus("Thêm vào playlist thất bại!");
+        }
+    setShowPlaylistMenu(false);
+    setTimeout(() => setAddStatus("") , 1500);
+    };
+    // Back
+    const handleBack = (e) => {
+        e.stopPropagation();
+        navigate(-1);
+    };
 
     if (!currentSong) {
         return (
@@ -38,7 +114,7 @@ export default function SongDetail() {
     };
 
     return (
-        <div className="relative min-h-screen flex flex-col">
+        <div ref={detailRef} className="relative min-h-screen flex flex-col">
             {/* Background image */}
             <div
                 className="absolute inset-0 bg-cover bg-center"
@@ -46,16 +122,66 @@ export default function SongDetail() {
             ></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/100 via-black/60 to-transparent"></div>
 
+            {/* Icon group góc trên phải */}
+            <div style={{ position: "absolute", top: 24, right: 40, zIndex: 30 }} className="flex items-center gap-4">
+                {/* Icon 3 chấm */}
+                <button onClick={e => e.stopPropagation()} className="hover:text-white" title="Tùy chọn">
+                    <i className="fa-solid fa-ellipsis"></i>
+                </button>
+                {/* Thêm vào playlist */}
+                <div style={{ position: "relative" }}>
+                    <button onClick={handleAddToPlaylist} className="hover:text-white" title="Thêm vào playlist">
+                        <i className="fa-solid fa-plus"></i>
+                    </button>
+                    {showPlaylistMenu && (
+                        <div className="absolute right-0 mt-2 w-64 bg-[#232326] rounded-lg shadow-lg z-50 border border-gray-700" tabIndex={0} onBlur={handleCloseMenu}>
+                            <ul className="py-2">
+                                {playlists.length === 0 ? (
+                                    <li className="px-4 py-2 text-gray-400">(Đang tải hoặc chưa có playlist)</li>
+                                ) : (
+                                    playlists.map((pl) => (
+                                        <li
+                                            key={pl.playlist_id || pl.id}
+                                            className="px-4 py-2 cursor-pointer hover:bg-[#333] text-white"
+                                            onClick={() => handleSelectPlaylist(pl.playlist_id || pl.id)}
+                                        >
+                                            <div className="font-semibold">{pl.name}</div>
+                                            {pl.description && <div className="text-xs text-gray-400">{pl.description}</div>}
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+
+                {/* Toàn màn hình */}
+                <button onClick={handleFullscreen} className="hover:text-white" title="Toàn màn hình">
+                    <i className="fa-solid fa-expand"></i>
+                </button>
+                {/* Thu nhỏ/back */}
+                <button onClick={handleBack} className="hover:text-white" title="Quay lại">
+                    <i className="fa-solid fa-compress"></i>
+                </button>
+            </div>
             {/* Content */}
             <div className="relative z-10 flex flex-col justify-end h-screen px-8 pb-12 text-white">
+                {addStatus && <span className="text-green-400 text-xs absolute top-20 right-48 z-40">{addStatus}</span>}
                 <div className="max-w-6xl mx-auto w-full text-left">
                     {/* Song info */}
                     <h1 className="text-3xl md:text-4xl font-bold mb-2 drop-shadow-lg">
                         {currentSong.title}
                     </h1>
-                    <p className="text-gray-300 text-lg mb-8">
+                    <button
+                        className="text-gray-300 text-lg mb-8 hover:underline text-left"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (currentSong?.artist_id) navigate(`/artists/${currentSong.artist_id}`);
+                        }}
+                        title={currentSong.artist?.name || "Unknown Artist"}
+                    >
                         {currentSong.artist?.name || "Unknown Artist"}
-                    </p>
+                    </button>
 
                     {/* Progress bar */}
                     <div className="flex items-center justify-between text-sm text-gray-300">

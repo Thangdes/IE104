@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import QueueList from "./QueueList";
 import { useSong } from "../context/SongContext";
 import { useNavigate } from "react-router-dom";
@@ -19,8 +19,6 @@ function formatTime(seconds) {
 function Player() {
     const {
         currentSong,
-        setCurrentSong,
-        audioRef,
         isPlaying,
         togglePlayPause,
         currentTime,
@@ -39,7 +37,7 @@ function Player() {
         playPrev,
     } = useSong();
     const navigate = useNavigate();
-    const [addStatus, setAddStatus] = useState("");
+    const [addStatus] = useState("");
 
     // QueueList popup state
     const [showQueue, setShowQueue] = useState(false);
@@ -82,7 +80,9 @@ function Player() {
             });
             const data = await res.json();
             if (data.success) setLiked(!liked);
-        } catch { }
+        } catch (e) {
+            console.warn('[Player] like toggle failed', e);
+        }
     };
 
     const handleModeClick = (e) => {
@@ -117,8 +117,11 @@ function Player() {
         seekTo(percent * duration);
     };
 
+    // Fullscreen controls and back are not used in the mini player; removed to satisfy lint.
+
     return (
         <div
+            ref={undefined}
             className="fixed bottom-0 left-0 w-full bg-[#1b1b1f] text-white px-6 py-3 flex items-center justify-between border-t border-gray-800 shadow-lg"
             onClick={openDetail}
             style={{ cursor: currentSong ? "pointer" : "default" }}
@@ -137,9 +140,17 @@ function Player() {
                     <p className="text-sm font-semibold truncate">
                         {currentSong?.title || "Chọn một bài hát để phát"}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">
+                    <button
+                        type="button"
+                        className="text-xs text-gray-400 truncate hover:underline text-left"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (currentSong?.artist_id) navigate(`/artists/${currentSong.artist_id}`);
+                        }}
+                        title={currentSong?.artist?.name || ""}
+                    >
                         {currentSong?.artist?.name || ""}
-                    </p>
+                    </button>
                 </div>
                 <button onClick={(e) => e.stopPropagation()} className="ml-3 text-gray-400 hover:text-green-500">
                     <span onClick={handleLike} title={liked ? "Bỏ thích" : "Thích"}>
@@ -221,7 +232,6 @@ function Player() {
                 </div>
             </div>
 
-            {/* Right: Volume & Options */}
             <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }} className="flex items-center gap-4 text-gray-300">
                 {/* Thông báo khi thêm bài hát vào playlist */}
                 {addStatus && <span className="text-green-400 text-xs mr-2">{addStatus}</span>}

@@ -7,10 +7,14 @@ import searchRouter from "./routes/search.js";
 import albumsRouter from "./routes/albums.js";
 import authRouter from "./routes/auth.js";
 import favoritesRouter from "./routes/favorites.js";
+import userRouter from "./routes/user.js";
+import artistsRouter from "./routes/artists.js";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Increase JSON body limit to allow base64 image payloads
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 // Routes
 app.use("/api/songs", songsRouter);
@@ -19,6 +23,8 @@ app.use("/api/search", searchRouter);
 app.use("/api/albums", albumsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/favorites", favoritesRouter);
+app.use("/api/users", userRouter);
+app.use("/api/artists", artistsRouter);
 
 // Start server
 const PORT = process.env.PORT || 4000;

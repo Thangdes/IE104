@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSong } from "../context/SongContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
@@ -16,6 +16,7 @@ export default function AlbumDetail() {
     const [album, setAlbum] = useState(null);
     const [loading, setLoading] = useState(true);
     const { setCurrentSong } = useSong();
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchAlbum() {
@@ -47,7 +48,19 @@ export default function AlbumDetail() {
                 <div className="flex-1">
                     <div className="text-sm font-bold mb-2 text-gray-400">Album</div>
                     <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white">{album.title}</h1>
-                    <div className="text-lg font-bold text-gray-300 mb-2">By {album.artist?.name || "Unknown Artist"}</div>
+                    <div className="text-lg font-bold text-gray-300 mb-2">
+                        By
+                        {" "}
+                        <button
+                            onClick={() => {
+                                if (album.artist_id) navigate(`/artists/${album.artist_id}`);
+                            }}
+                            className="hover:underline"
+                            title={album.artist?.name || "Unknown Artist"}
+                        >
+                            {album.artist?.name || "Unknown Artist"}
+                        </button>
+                    </div>
                     <div className="text-gray-400 mt-2 text-base">
                         {(() => {
                             const songCount = album.songs?.length || 0;
@@ -94,7 +107,17 @@ export default function AlbumDetail() {
                                     </div>
 
                                     {/* Artist Name */}
-                                    <div className="text-lg text-white truncate">{song.artist?.name || "Unknown Artist"}</div>
+                                    <div className="text-lg text-white truncate">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (song.artist_id) navigate(`/artists/${song.artist_id}`);
+                                            }}
+                                            className="hover:underline text-left"
+                                        >
+                                            {song.artist?.name || "Unknown Artist"}
+                                        </button>
+                                    </div>
 
                                     {/* Duration */}
                                     <div className="text-lg text-white text-center">{formatDuration(song.duration)}</div>

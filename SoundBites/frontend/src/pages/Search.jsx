@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import SongCard from "../components/SongCard";
 import PlaylistCard from "../components/PlaylistCard";
 import AlbumCard from "../components/AlbumCard";
@@ -16,6 +17,7 @@ function Search() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const { setCurrentSong } = useSong();
+    const navigate = useNavigate();
 
     // Search function - fetch from backend
     const handleSearch = async (query) => {
@@ -32,7 +34,7 @@ function Search() {
                 artists: results.artists || [],
                 albums: results.albums || []
             });
-        } catch (err) {
+        } catch {
             setSearchResults({ songs: [], playlists: [], artists: [], albums: [] });
         }
         setIsLoading(false);
@@ -130,6 +132,7 @@ function Search() {
                                         playCount={song.play_count}
                                         onPlay={() => handlePlaySong(song)}
                                         song_id={song.song_id}
+                                        artistId={song.artist_id}
                                     />
                                 ))}
                             </div>
@@ -147,6 +150,8 @@ function Search() {
                                         title={album.title}
                                         artist={album.artist?.name}
                                         coverImage={album.cover_image}
+                                        album_id={album.album_id}
+                                        artistId={album.artist_id}
                                     />
                                 ))}
                             </div>
@@ -181,6 +186,7 @@ function Search() {
                                     <div
                                         key={artist.artist_id}
                                         className="flex flex-col items-center text-center group cursor-pointer"
+                                        onClick={() => navigate(`/artists/${artist.artist_id}`)}
                                     >
                                         <div className="relative w-32 h-32 bg-gray-700 rounded-full overflow-hidden mb-3 group-hover:scale-105 transition-transform duration-300">
                                             <img

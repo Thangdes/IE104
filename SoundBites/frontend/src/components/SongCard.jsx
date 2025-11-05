@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 // Helper to get JWT token from localStorage
 function getToken() {
@@ -8,7 +9,8 @@ function getToken() {
 
 import { useEffect, useState } from "react";
 
-function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl, song_id }) {
+function SongCard({ title, artist, coverImage, playCount, onPlay, song_id, artistId }) {
+    const navigate = useNavigate();
     const [liked, setLiked] = useState(false);
     // Get token and update liked state when token or song_id changes
     const token = getToken();
@@ -49,7 +51,9 @@ function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl, song_
             });
             const data = await res.json();
             if (data.success) setLiked(!liked);
-        } catch { }
+        } catch (e) {
+            console.warn('[SongCard] like toggle failed', e);
+        }
     };
 
     return (
@@ -85,7 +89,17 @@ function SongCard({ title, artist, coverImage, playCount, onPlay, fileUrl, song_
             {/* Info */}
             <div className="w-full">
                 <h3 className="text-white font-semibold text-xl truncate">{title}</h3>
-                <p className="text-gray-400 text-base truncate">{artist}</p>
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (artistId) navigate(`/artists/${artistId}`);
+                    }}
+                    className="text-gray-400 text-base truncate hover:underline text-left"
+                    title={artist}
+                >
+                    {artist}
+                </button>
                 <p className="text-gray-500 text-sm mt-1"><i className="text-[#626267] fa-solid fa-headphones"></i> {playCount.toLocaleString()} plays</p>
             </div>
         </div>
