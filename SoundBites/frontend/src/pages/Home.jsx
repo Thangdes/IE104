@@ -70,10 +70,10 @@ function Home() {
                             title={song.title}
                             artist={song.artist?.name || "Unknown Artist"}
                             coverImage={song.album?.cover_image}
-                            fileUrl={song.file_url}
                             playCount={song.play_count}
                             onPlay={() => setCurrentSong(song)}
                             song_id={song.song_id}
+                            artistId={song.artist_id}
                         />
                     ))}
                 </div>
@@ -99,6 +99,7 @@ function Home() {
                             album_id={album.album_id}
                             title={album.title}
                             artist={album.artist?.name}
+                            artistId={album.artist_id}
                             coverImage={album.cover_image}
                         />
                     ))}

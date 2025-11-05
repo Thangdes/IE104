@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
 
-export default function AlbumCard({ title, artist, coverImage, album_id }) {
+export default function AlbumCard({ title, artist, coverImage, album_id, artistId }) {
     const { playQueue } = useSong();
     const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ export default function AlbumCard({ title, artist, coverImage, album_id }) {
             if (Array.isArray(data.songs) && data.songs.length > 0) {
                 playQueue(data.songs, 0);
             }
-        } catch (err) {
+        } catch {
             // Optionally show error
         }
     };
@@ -45,7 +45,17 @@ export default function AlbumCard({ title, artist, coverImage, album_id }) {
                 </button>
             </div>
             <h3 className="text-white font-semibold text-lg truncate w-full mb-1">{title}</h3>
-            <p className="text-gray-400 text-sm">{artist || "Unknown Artist"}</p>
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (artistId) navigate(`/artists/${artistId}`);
+                }}
+                className="text-gray-400 text-sm hover:underline"
+                title={artist}
+            >
+                {artist || "Unknown Artist"}
+            </button>
         </div>
     );
 }

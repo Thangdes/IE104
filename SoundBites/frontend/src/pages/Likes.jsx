@@ -23,7 +23,7 @@ function Likes() {
                 });
                 const data = await res.json();
                 setLikedSongs(Array.isArray(data) ? data : (data.songs || []));
-            } catch (err) {
+            } catch {
                 setLikedSongs([]);
             }
             setLoading(false);
@@ -75,10 +75,10 @@ function Likes() {
                                 title={song.title}
                                 artist={song.artist?.name || "Unknown Artist"}
                                 coverImage={song.album?.cover_image}
-                                fileUrl={song.file_url}
                                 playCount={song.play_count}
                                 onPlay={() => setCurrentSong(song)}
                                 song_id={song.song_id}
+                                artistId={song.artist_id}
                             />
                         ))}
                     </div>

@@ -1,7 +1,9 @@
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function QueueList({ queue, currentQueueIndex, onClose }) {
+    const navigate = useNavigate();
     return (
         <div className="fixed inset-0 z-50 pointer-events-none">
             {/* Click outside to close */}
@@ -35,7 +37,16 @@ function QueueList({ queue, currentQueueIndex, onClose }) {
                                 />
                                 <div className="flex-1 min-w-0">
                                     <div className="truncate font-medium">{song.title}</div>
-                                    <div className="truncate text-xs text-gray-400">{song.artist?.name}</div>
+                                    <button
+                                        className="truncate text-xs text-gray-400 hover:underline text-left"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (song.artist_id) navigate(`/artists/${song.artist_id}`);
+                                        }}
+                                        title={song.artist?.name}
+                                    >
+                                        {song.artist?.name}
+                                    </button>
                                 </div>
                                 {idx === currentQueueIndex && (
                                     <i className="fa-solid fa-volume-high text-white ml-2"></i>

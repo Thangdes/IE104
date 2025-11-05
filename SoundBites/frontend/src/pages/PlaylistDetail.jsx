@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSong } from "../context/SongContext";
 
 
@@ -18,6 +18,7 @@ export default function PlaylistDetail() {
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
     const { setCurrentSong } = useSong();
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchPlaylist() {
@@ -47,7 +48,7 @@ export default function PlaylistDetail() {
             } else {
                 alert("Xóa thất bại!");
             }
-        } catch (err) {
+        } catch {
             alert("Lỗi khi xóa bài hát!");
         }
     }
@@ -107,7 +108,15 @@ export default function PlaylistDetail() {
                                         />
                                         <div className="flex flex-col">
                                             <div className="text-lg text-white font-medium">{song.title}</div>
-                                            <div className="text-sm text-gray-400">{song.artist?.name || "Unknown Artist"}</div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (song.artist_id) navigate(`/artists/${song.artist_id}`);
+                                                }}
+                                                className="text-sm text-gray-400 hover:underline text-left"
+                                            >
+                                                {song.artist?.name || "Unknown Artist"}
+                                            </button>
                                         </div>
                                     </div>
 
