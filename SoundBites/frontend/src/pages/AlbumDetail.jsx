@@ -15,7 +15,7 @@ export default function AlbumDetail() {
     const { id } = useParams();
     const [album, setAlbum] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { setCurrentSong } = useSong();
+    const { playQueue } = useSong();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -95,7 +95,11 @@ export default function AlbumDetail() {
                                     <div className="text-lg font-semibold text-gray-300">{idx + 1}</div>
 
                                     {/* Title & Cover */}
-                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentSong(song)}>
+                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => {
+                                        if (album.songs && album.songs.length > 0) {
+                                            playQueue(album.songs, idx);
+                                        }
+                                    }}>
                                         <img
                                             src={album.cover_image}
                                             alt={song.title}

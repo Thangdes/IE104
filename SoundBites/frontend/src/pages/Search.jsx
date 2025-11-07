@@ -16,7 +16,7 @@ function Search() {
         albums: []
     });
     const [isLoading, setIsLoading] = useState(false);
-    const { setCurrentSong } = useSong();
+    const { playQueue } = useSong();
     const navigate = useNavigate();
 
     // Search function - fetch from backend
@@ -50,7 +50,13 @@ function Search() {
     }, [searchQuery]);
 
     const handlePlaySong = (song) => {
-        setCurrentSong(song);
+        const songIndex = searchResults.songs.findIndex(s => s.song_id === song.song_id);
+        if (songIndex >= 0 && searchResults.songs.length > 0) {
+            playQueue(searchResults.songs, songIndex);
+        } else {
+            // Nếu không có trong danh sách, tạo queue với bài đó
+            playQueue([song], 0);
+        }
     };
 
     const handlePlaylistClick = (playlist) => {

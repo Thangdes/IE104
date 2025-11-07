@@ -3,7 +3,7 @@ import { useSong } from "../context/SongContext";
 import SongCard from "../components/SongCard";
 
 function Likes() {
-    const { setCurrentSong, playQueue } = useSong();
+    const { playQueue } = useSong();
     const [likedSongs, setLikedSongs] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -69,14 +69,14 @@ function Likes() {
                     <div className="text-center text-gray-400 text-xl mt-12">You haven't liked any songs yet.</div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {likedSongs.map((song) => (
+                        {likedSongs.map((song, index) => (
                             <SongCard
                                 key={song.song_id}
                                 title={song.title}
                                 artist={song.artist?.name || "Unknown Artist"}
                                 coverImage={song.album?.cover_image}
                                 playCount={song.play_count}
-                                onPlay={() => setCurrentSong(song)}
+                                onPlay={() => playQueue(likedSongs, index)}
                                 song_id={song.song_id}
                                 artistId={song.artist_id}
                             />

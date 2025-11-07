@@ -14,14 +14,20 @@ function Navbar() {
                 {/* Logo Section */}
                 <Link to="/" className="flex items-center gap-3 group">
                     <img
-                        src="logo.png"
+                        src="/logo.png"
                         alt="Site Logo"
                         className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                        }}
                     />
                     <img
-                        src="name.png"
+                        src="/name.png"
                         alt="Site Name"
                         className="h-10 w-auto"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                        }}
                     />
                 </Link>
 
