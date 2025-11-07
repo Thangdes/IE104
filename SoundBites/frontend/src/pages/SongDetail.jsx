@@ -11,7 +11,7 @@ function formatTime(seconds) {
 import { useNavigate } from "react-router-dom";
 
 export default function SongDetail() {
-    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo, repeatMode, setRepeatMode, queue, playNext, playPrev } = useSong();
+    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo, repeatMode, setRepeatMode, queue, playNext, playPrev, isShuffle, toggleShuffle } = useSong();
     const navigate = useNavigate();
     const [isFullscreen, setIsFullscreen] = React.useState(false);
     const detailRef = React.useRef();
@@ -205,7 +205,14 @@ export default function SongDetail() {
                     {/* Controls (match Player layout) */}
                     <div className="flex flex-col items-center mt-8">
                         <div className="flex items-center gap-6 text-gray-300">
-                            <button className="hover:text-white">
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleShuffle();
+                                }}
+                                className={isShuffle ? "text-green-500 hover:text-green-400" : "hover:text-white"}
+                                title={isShuffle ? "Shuffle: ON" : "Shuffle: OFF"}
+                            >
                                 <i className="fa-solid fa-shuffle"></i>
                             </button>
                             <button

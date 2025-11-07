@@ -6,7 +6,7 @@ import AlbumCard from "../components/AlbumCard";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
-    const { setCurrentSong } = useSong();
+    const { playQueue } = useSong();
     const [topSongs, setTopSongs] = useState([]);
     const [playlists, setPlaylists] = useState([]);
     const [latestAlbums, setLatestAlbums] = useState([]);
@@ -64,14 +64,14 @@ function Home() {
                     </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {topSongs.map((song) => (
+                    {topSongs.map((song, index) => (
                         <SongCard
                             key={song.song_id}
                             title={song.title}
                             artist={song.artist?.name || "Unknown Artist"}
                             coverImage={song.album?.cover_image}
                             playCount={song.play_count}
-                            onPlay={() => setCurrentSong(song)}
+                            onPlay={() => playQueue(topSongs, index)}
                             song_id={song.song_id}
                             artistId={song.artist_id}
                         />

@@ -15,6 +15,8 @@ export function SongProvider({ children }) {
     const [volume, setVolume] = useState(1);
     const [isMuted, setIsMuted] = useState(false);
     const [repeatMode, setRepeatMode] = useState(0);
+    const [isShuffle, setIsShuffle] = useState(false);
+    const [originalQueue, setOriginalQueue] = useState([]); // Lưu queue gốc khi shuffle
 
     // attach audio event listeners once
     useEffect(() => {
@@ -39,14 +41,25 @@ export function SongProvider({ children }) {
                 // repeat one
                 audio.currentTime = 0;
                 audio.play().catch(() => {});
-            } else if (queue.length > 0 && currentQueueIndex < queue.length - 1) {
-                // play next in queue
-                playNext();
-            } else if (repeatMode === 1 && queue.length > 0) {
-                // repeat all: loop to start
-                setCurrentQueueIndex(0);
-                setCurrentSong(queue[0]);
-                setIsPlaying(true);
+            } else if (queue.length > 0) {
+                if (isShuffle) {
+                    // Shuffle mode: chọn bài ngẫu nhiên
+                    const randomIndex = Math.floor(Math.random() * queue.length);
+                    setCurrentQueueIndex(randomIndex);
+                    setIsPlaying(true);
+                } else if (currentQueueIndex < queue.length - 1) {
+                    // Normal mode: play next in queue
+                    const nextIdx = currentQueueIndex + 1;
+                    setCurrentQueueIndex(nextIdx);
+                    setIsPlaying(true);
+                } else if (repeatMode === 1) {
+                    // repeat all: loop to start
+                    setCurrentQueueIndex(0);
+                    setCurrentSong(queue[0]);
+                    setIsPlaying(true);
+                } else {
+                    setIsPlaying(false);
+                }
             } else {
                 setIsPlaying(false);
             }
@@ -62,7 +75,7 @@ export function SongProvider({ children }) {
             audio.removeEventListener("ended", onEnded);
         };
         // eslint-disable-next-line
-    }, [isPlaying, repeatMode, queue, currentQueueIndex]);
+    }, [isPlaying, repeatMode, queue, currentQueueIndex, isShuffle]);
 
     // sync volume/mute
     useEffect(() => {
@@ -121,12 +134,39 @@ export function SongProvider({ children }) {
         audio.currentTime = seconds;
     };
 
+    // Shuffle array function (Fisher-Yates algorithm)
+    const shuffleArray = (array) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+
     // Set a new queue and start playing from index (default 0)
-    const playQueue = (songs, startIndex = 0) => {
-        setQueue(songs);
-        setCurrentQueueIndex(startIndex);
-        if (songs && songs.length > 0 && startIndex >= 0 && startIndex < songs.length) {
-            setCurrentSong(songs[startIndex]);
+    const playQueue = (songs, startIndex = 0, shuffle = false) => {
+        if (!songs || songs.length === 0) return;
+        
+        // Lưu queue gốc
+        setOriginalQueue(songs);
+        
+        let finalQueue = songs;
+        let finalIndex = startIndex;
+        
+        // Nếu shuffle được bật hoặc được yêu cầu
+        if (shuffle || isShuffle) {
+            finalQueue = shuffleArray(songs);
+            // Tìm vị trí của bài hát được chọn trong queue đã shuffle
+            const selectedSong = songs[startIndex];
+            finalIndex = finalQueue.findIndex(s => s.song_id === selectedSong.song_id);
+            if (finalIndex === -1) finalIndex = 0;
+        }
+        
+        setQueue(finalQueue);
+        setCurrentQueueIndex(finalIndex);
+        if (finalIndex >= 0 && finalIndex < finalQueue.length) {
+            setCurrentSong(finalQueue[finalIndex]);
         }
         setIsPlaying(true);
     };
@@ -134,23 +174,70 @@ export function SongProvider({ children }) {
     // Play next song in queue
     const playNext = () => {
         if (queue.length === 0) return;
-        let nextIdx = currentQueueIndex + 1;
-        if (nextIdx >= queue.length) {
-            nextIdx = 0; // loop to start
+        
+        if (isShuffle) {
+            // Nếu shuffle mode, chọn bài ngẫu nhiên từ queue
+            const randomIndex = Math.floor(Math.random() * queue.length);
+            setCurrentQueueIndex(randomIndex);
+        } else {
+            // Normal mode: play next
+            let nextIdx = currentQueueIndex + 1;
+            if (nextIdx >= queue.length) {
+                nextIdx = 0; // loop to start
+            }
+            setCurrentQueueIndex(nextIdx);
         }
-        setCurrentQueueIndex(nextIdx);
         setIsPlaying(true);
     };
 
     // Play previous song in queue
     const playPrev = () => {
         if (queue.length === 0) return;
-        let prevIdx = currentQueueIndex - 1;
-        if (prevIdx < 0) {
-            prevIdx = queue.length - 1; // loop to end
+        
+        if (isShuffle) {
+            // Nếu shuffle mode, chọn bài ngẫu nhiên từ queue
+            const randomIndex = Math.floor(Math.random() * queue.length);
+            setCurrentQueueIndex(randomIndex);
+        } else {
+            // Normal mode: play previous
+            let prevIdx = currentQueueIndex - 1;
+            if (prevIdx < 0) {
+                prevIdx = queue.length - 1; // loop to end
+            }
+            setCurrentQueueIndex(prevIdx);
         }
-        setCurrentQueueIndex(prevIdx);
         setIsPlaying(true);
+    };
+
+    // Toggle shuffle mode
+    const toggleShuffle = () => {
+        const newShuffleState = !isShuffle;
+        setIsShuffle(newShuffleState);
+        
+        // Nếu đang bật shuffle và có queue, shuffle lại queue
+        if (newShuffleState && queue.length > 0) {
+            const shuffled = shuffleArray(originalQueue.length > 0 ? originalQueue : queue);
+            const currentSongId = currentSong?.song_id;
+            const newIndex = shuffled.findIndex(s => s.song_id === currentSongId);
+            if (newIndex >= 0) {
+                setQueue(shuffled);
+                setCurrentQueueIndex(newIndex);
+            } else {
+                setQueue(shuffled);
+                setCurrentQueueIndex(0);
+            }
+        } else if (!newShuffleState && originalQueue.length > 0) {
+            // Nếu tắt shuffle, khôi phục queue gốc
+            const currentSongId = currentSong?.song_id;
+            const newIndex = originalQueue.findIndex(s => s.song_id === currentSongId);
+            if (newIndex >= 0) {
+                setQueue(originalQueue);
+                setCurrentQueueIndex(newIndex);
+            } else {
+                setQueue(originalQueue);
+                setCurrentQueueIndex(0);
+            }
+        }
     };
 
     const value = {
@@ -178,6 +265,9 @@ export function SongProvider({ children }) {
         playPrev,
         setQueue,
         setCurrentQueueIndex,
+        // shuffle features
+        isShuffle,
+        toggleShuffle,
     };
 
     return (

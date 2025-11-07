@@ -35,6 +35,8 @@ function Player() {
         currentQueueIndex,
         playNext,
         playPrev,
+        isShuffle,
+        toggleShuffle,
     } = useSong();
     const navigate = useNavigate();
     const [addStatus] = useState("");
@@ -166,7 +168,14 @@ function Player() {
                 style={{ cursor: currentSong ? "pointer" : "default" }}
             >
                 <div className="flex items-center gap-5 text-gray-300">
-                    <button onClick={(e) => e.stopPropagation()} className="text-gray-700">
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            toggleShuffle();
+                        }} 
+                        className={isShuffle ? "text-green-500 hover:text-green-400" : "text-gray-700 hover:text-white"}
+                        title={isShuffle ? "Shuffle: ON" : "Shuffle: OFF"}
+                    >
                         <i className="fa-solid fa-shuffle"></i>
                     </button>
                     <button
