@@ -46,7 +46,7 @@ function Sidebar() {
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
-                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <i className="fa-solid fa-magnifying-glass"></i>
                                     <span>Search</span>
                                 </Link>
                             </li>
@@ -75,7 +75,7 @@ function Sidebar() {
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
-                                    <i class="fa-solid fa-record-vinyl"></i>
+                                    <i className="fa-solid fa-record-vinyl"></i>
                                     <span>Albums</span>
                                 </Link>
                             </li>
@@ -104,7 +104,7 @@ function Sidebar() {
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
-                                    <i class="fa-solid fa-gear"></i>
+                                    <i className="fa-solid fa-gear"></i>
                                     <span>Settings</span>
                                 </Link>
                             </li>
@@ -114,7 +114,7 @@ function Sidebar() {
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >
-                                    <i class="fa-solid fa-crown"></i>
+                                    <i className="fa-solid fa-crown"></i>
                                     <span>Subscription</span>
                                 </Link>
                             </li>
