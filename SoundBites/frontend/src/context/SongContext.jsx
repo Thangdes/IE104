@@ -17,6 +17,7 @@ export function SongProvider({ children }) {
     const [repeatMode, setRepeatMode] = useState(0);
     const [isShuffle, setIsShuffle] = useState(false);
     const [originalQueue, setOriginalQueue] = useState([]); // Lưu queue gốc khi shuffle
+    const [showLyricOverlay, setShowLyricOverlay] = useState(false); // State cho lyric overlay
 
     // attach audio event listeners once
     useEffect(() => {
@@ -209,6 +210,11 @@ export function SongProvider({ children }) {
         setIsPlaying(true);
     };
 
+    // Toggle lyric overlay
+    const toggleLyricOverlay = () => {
+        setShowLyricOverlay(prev => !prev);
+    };
+
     // Toggle shuffle mode
     const toggleShuffle = () => {
         const newShuffleState = !isShuffle;
@@ -268,6 +274,9 @@ export function SongProvider({ children }) {
         // shuffle features
         isShuffle,
         toggleShuffle,
+        // lyric overlay features
+        showLyricOverlay,
+        toggleLyricOverlay,
     };
 
     return (

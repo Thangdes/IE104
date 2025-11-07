@@ -17,7 +17,7 @@ export default function PlaylistDetail() {
     const { id } = useParams();
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { setCurrentSong } = useSong();
+    const { playQueue } = useSong();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -100,7 +100,11 @@ export default function PlaylistDetail() {
                                     <div className="text-lg font-semibold text-gray-300">{idx + 1}</div>
 
                                     {/* Title & Cover */}
-                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentSong(song)}>
+                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => {
+                                        if (playlist.songs && playlist.songs.length > 0) {
+                                            playQueue(playlist.songs, idx);
+                                        }
+                                    }}>
                                         <img
                                             src={song.album?.cover_image || song.cover_image}
                                             alt={song.title}

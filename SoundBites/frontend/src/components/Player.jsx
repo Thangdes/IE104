@@ -37,6 +37,8 @@ function Player() {
         playPrev,
         isShuffle,
         toggleShuffle,
+        showLyricOverlay,
+        toggleLyricOverlay,
     } = useSong();
     const navigate = useNavigate();
     const [addStatus] = useState("");
@@ -173,7 +175,7 @@ function Player() {
                             e.stopPropagation();
                             toggleShuffle();
                         }} 
-                        className={isShuffle ? "text-green-500 hover:text-green-400" : "text-gray-700 hover:text-white"}
+                        className={isShuffle ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
                         title={isShuffle ? "Shuffle: ON" : "Shuffle: OFF"}
                     >
                         <i className="fa-solid fa-shuffle"></i>
@@ -223,6 +225,18 @@ function Player() {
                             </>
                         )}
                     </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (currentSong) {
+                                toggleLyricOverlay();
+                            }
+                        }}
+                        className={showLyricOverlay ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
+                        title={showLyricOverlay ? "Ẩn lời bài hát" : "Xem lời bài hát"}
+                    >
+                        <i className="fa-solid fa-microphone"></i>
+                    </button>
                 </div>
 
                 {/* Progress bar */}
@@ -253,9 +267,6 @@ function Player() {
                     title="Show current queue"
                 >
                     <i className="fa-solid fa-list"></i>
-                </button>
-                <button className="hover:text-white">
-                    <i className="fa-solid fa-microphone"></i>
                 </button>
                 <div className="flex items-center gap-2 w-32">
                     <button onClick={(e) => { e.stopPropagation(); handleVolumeIconClick(); }} className="focus:outline-none">

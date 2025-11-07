@@ -1,5 +1,6 @@
 import React from "react";
 import { useSong } from "../context/SongContext";
+import { useNavigate } from "react-router-dom";
 
 function formatTime(seconds) {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -8,10 +9,8 @@ function formatTime(seconds) {
     return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-import { useNavigate } from "react-router-dom";
-
 export default function SongDetail() {
-    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo, repeatMode, setRepeatMode, queue, playNext, playPrev, isShuffle, toggleShuffle } = useSong();
+    const { currentSong, isPlaying, togglePlayPause, progress, currentTime, duration, seekTo, repeatMode, setRepeatMode, queue, playNext, playPrev, isShuffle, toggleShuffle, showLyricOverlay, toggleLyricOverlay } = useSong();
     const navigate = useNavigate();
     const [isFullscreen, setIsFullscreen] = React.useState(false);
     const detailRef = React.useRef();
@@ -210,7 +209,7 @@ export default function SongDetail() {
                                     e.stopPropagation();
                                     toggleShuffle();
                                 }}
-                                className={isShuffle ? "text-green-500 hover:text-green-400" : "hover:text-white"}
+                                className={isShuffle ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
                                 title={isShuffle ? "Shuffle: ON" : "Shuffle: OFF"}
                             >
                                 <i className="fa-solid fa-shuffle"></i>
@@ -257,6 +256,18 @@ export default function SongDetail() {
                                         <span className="absolute -bottom-1 text-xs font-bold hover:text-white">1</span>
                                     </>
                                 )}
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (currentSong) {
+                                        toggleLyricOverlay();
+                                    }
+                                }}
+                                className={showLyricOverlay ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
+                                title={showLyricOverlay ? "Ẩn lời bài hát" : "Xem lời bài hát"}
+                            >
+                                <i className="fa-solid fa-microphone"></i>
                             </button>
                         </div>
                     </div>
