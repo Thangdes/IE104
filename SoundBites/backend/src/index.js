@@ -9,6 +9,7 @@ import authRouter from "./routes/auth.js";
 import favoritesRouter from "./routes/favorites.js";
 import userRouter from "./routes/user.js";
 import artistsRouter from "./routes/artists.js";
+import historyRouter from "./routes/history.js";
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/favorites", favoritesRouter);
 app.use("/api/users", userRouter);
 app.use("/api/artists", artistsRouter);
+app.use("/api/history", historyRouter);
 
 // Start server
 const PORT = process.env.PORT || 4000;

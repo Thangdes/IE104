@@ -18,6 +18,8 @@ export function SongProvider({ children }) {
     const [isShuffle, setIsShuffle] = useState(false);
     const [originalQueue, setOriginalQueue] = useState([]); // Lưu queue gốc khi shuffle
     const [showLyricOverlay, setShowLyricOverlay] = useState(false); // State cho lyric overlay
+    const lastHistorySongId = useRef(null); // Lưu song_id đã cập nhật lịch sử để tránh cập nhật nhiều lần
+    const historyUpdateCallbacks = useRef([]); // Callbacks để refresh History page
 
     // attach audio event listeners once
     useEffect(() => {
@@ -85,6 +87,60 @@ export function SongProvider({ children }) {
         audio.volume = volume;
         audio.muted = isMuted;
     }, [volume, isMuted]);
+
+    // Hàm helper để cập nhật lịch sử
+    const updateHistory = React.useCallback((songId) => {
+        if (!songId) return;
+        if (lastHistorySongId.current === songId) return; // Đã cập nhật rồi
+        
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.log("No token, skipping history update");
+            return; // Chỉ cập nhật nếu user đã đăng nhập
+        }
+        
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+        
+        // Gọi API để thêm vào lịch sử
+        fetch(`${API_BASE}/history/add`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ songId })
+        }).then((res) => {
+            if (res.ok) {
+                // Đánh dấu đã cập nhật bài này
+                lastHistorySongId.current = songId;
+                console.log("History updated for song:", songId);
+                // Gọi tất cả callbacks để refresh History page
+                historyUpdateCallbacks.current.forEach(callback => {
+                    try {
+                        callback();
+                    } catch (e) {
+                        console.warn("Error in history update callback:", e);
+                    }
+                });
+            } else {
+                console.warn("Failed to update history:", res.status);
+            }
+        }).catch(error => {
+            console.warn("Failed to update history:", error);
+        });
+    }, []);
+
+    // Tự động cập nhật lịch sử nghe khi currentSong thay đổi (khi người dùng bấm vào bài hát)
+    useEffect(() => {
+        // Chỉ cập nhật khi có currentSong
+        if (!currentSong?.song_id) return;
+        
+        // Reset lastHistorySongId nếu đây là bài hát khác
+        if (lastHistorySongId.current !== currentSong.song_id) {
+            // Chỉ cập nhật nếu đây là bài hát mới (khác với bài đã cập nhật trước đó)
+            updateHistory(currentSong.song_id);
+        }
+    }, [currentSong?.song_id, updateHistory]);
 
     // when currentSong changes, load it into audio element
     useEffect(() => {
@@ -167,7 +223,9 @@ export function SongProvider({ children }) {
         setQueue(finalQueue);
         setCurrentQueueIndex(finalIndex);
         if (finalIndex >= 0 && finalIndex < finalQueue.length) {
-            setCurrentSong(finalQueue[finalIndex]);
+            const selectedSong = finalQueue[finalIndex];
+            setCurrentSong(selectedSong);
+            // Không cần gọi updateHistory ở đây vì useEffect sẽ tự động gọi khi currentSong thay đổi
         }
         setIsPlaying(true);
     };
@@ -277,6 +335,8 @@ export function SongProvider({ children }) {
         // lyric overlay features
         showLyricOverlay,
         toggleLyricOverlay,
+        // history update callbacks
+        historyUpdateCallbacks,
     };
 
     return (
