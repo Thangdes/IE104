@@ -88,6 +88,15 @@ function Sidebar() {
                                     <span>Following</span>
                                 </button>
                             </li>
+                            <li>
+                                <button
+                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
+                                    onClick={() => handleProtectedNav("/history")}
+                                >
+                                    <i className="fa-solid fa-clock-rotate-left"></i>
+                                    <span>History</span>
+                                </button>
+                            </li>
                         </ul>
                     </nav>
 
