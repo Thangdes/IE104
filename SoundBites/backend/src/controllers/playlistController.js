@@ -91,3 +91,21 @@ export const listPlaylists = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch playlists" });
     }
 };
+
+export const deletePlaylist = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Delete all playlist_songs entries first (to avoid foreign key constraint errors)
+        await prisma.playlist_songs.deleteMany({
+            where: { playlist_id: Number(id) },
+        });
+        // Delete the playlist itself
+        const deleted = await prisma.playlists.delete({
+            where: { playlist_id: Number(id) },
+        });
+        res.json({ success: true, deleted });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete playlist" });
+    }
+};

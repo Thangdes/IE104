@@ -31,6 +31,38 @@ export default function PlaylistDetail() {
         fetchPlaylist();
     }, [id]);
 
+    // Drag and drop state
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [hoveredIndex, setHoveredIndex] = useState(null);
+
+    // Drag and drop handlers (move out of handleDeleteSong)
+    function handleDragStart(index) {
+        setDraggedIndex(index);
+    }
+    function handleDragOver(e, index) {
+        e.preventDefault();
+        setHoveredIndex(index);
+    }
+    function handleDrop(e, dropIndex) {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === dropIndex) {
+            setDraggedIndex(null);
+            setHoveredIndex(null);
+            return;
+        }
+        const newSongs = [...playlist.songs];
+        const draggedSong = newSongs[draggedIndex];
+        newSongs.splice(draggedIndex, 1);
+        newSongs.splice(dropIndex, 0, draggedSong);
+        setPlaylist((prev) => ({ ...prev, songs: newSongs }));
+        setDraggedIndex(null);
+        setHoveredIndex(null);
+    }
+    function handleDragEnd() {
+        setDraggedIndex(null);
+        setHoveredIndex(null);
+    }
+
     async function handleDeleteSong(songId) {
         if (!window.confirm("Bạn có chắc muốn xóa bài hát này khỏi playlist?")) return;
         try {
@@ -46,10 +78,10 @@ export default function PlaylistDetail() {
                     songs: prev.songs.filter(s => s.song_id !== songId)
                 }));
             } else {
-                alert("Xóa thất bại!");
+                alert("Failed to delete the song!");
             }
         } catch {
-            alert("Lỗi khi xóa bài hát!");
+            alert("Failed to delete the song!");
         }
     }
 
@@ -77,6 +109,57 @@ export default function PlaylistDetail() {
                 </div>
             </section>
 
+            {/* Play & Shuffle Buttons left, Delete Playlist right */}
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex gap-4">
+                    <button
+                        className="flex items-center gap-2 bg-white text-[#1b1b1f] font-semibold text-lg leading-[22px] px-8 py-3 rounded-[12px] transition-all duration-300 hover:bg-[#626267] hover:text-[#FEFEFE] hover:scale-[1.05]"
+                        onClick={() => {
+                            if (playlist.songs && playlist.songs.length > 0) {
+                                playQueue(playlist.songs, 0);
+                            }
+                        }}
+                    >
+                        <i className="fa-solid fa-play"></i>
+                        <span>Play</span>
+                    </button>
+                    <button
+                        className="flex items-center gap-2 bg-[#2a2a2a] text-white font-semibold text-lg leading-[22px] px-8 py-3 rounded-[12px] transition-all duration-300 hover:bg-[#626267] hover:text-[#FEFEFE] hover:scale-[1.05]"
+                        onClick={() => {
+                            if (playlist.songs && playlist.songs.length > 0) {
+                                const shuffled = [...playlist.songs].sort(() => Math.random() - 0.5);
+                                playQueue(shuffled, 0);
+                            }
+                        }}
+                    >
+                        <i className="fa-solid fa-shuffle"></i>
+                        <span>Shuffle</span>
+                    </button>
+                </div>
+                <button
+                    className="flex items-center gap-2 border-red-900 bg-transparent text-red-500 font-light text-lg leading-[22px] px-8 py-3 rounded-[12px] transition-all duration-300 hover:bg-red-950 hover:text-red-400 hover:scale-[1.05]"
+                    onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete this playlist?')) {
+                            try {
+                                const res = await fetch(`${API_BASE}/playlists/${id}`, { method: 'DELETE' });
+                                const data = await res.json();
+                                if (data.success) {
+                                    alert('Playlist deleted successfully.');
+                                    navigate('/');
+                                } else {
+                                    alert('Failed to delete playlist.');
+                                }
+                            } catch {
+                                alert('Error deleting playlist.');
+                            }
+                        }
+                    }}
+                >
+                    <i className="fa-solid fa-trash"></i>
+                    <span>Delete Playlist</span>
+                </button>
+            </div>
+
             {/* Songs Section */}
             <section>
                 <div className="flex items-center justify-between mb-6 pb-2">
@@ -86,19 +169,31 @@ export default function PlaylistDetail() {
                     {playlist.songs && playlist.songs.length > 0 ? (
                         <div className="grid gap-4">
                             {/* Table Header */}
-                            <div className="grid grid-cols-[56px_1fr_180px_120px_120px] items-center border-b border-gray-700 pb-2 text-gray-400 tracking-wide uppercase text-lg font-normal">
+                            <div className="grid grid-cols-[40px_56px_1fr_180px_120px_120px] items-center border-b border-gray-700 pb-2 text-gray-400 tracking-wide uppercase text-lg font-normal">
+                                <div></div>
                                 <div>#</div>
                                 <div>Title</div>
                                 <div>Album</div>
                                 <div className="text-center">Duration</div>
                                 <div className="hidden md:block text-right">Actions</div>
                             </div>
-                            {/* Track Items */}
+                            {/* Track Items with drag and drop */}
                             {playlist.songs.map((song, idx) => (
-                                <div key={song.song_id} className="grid grid-cols-[56px_1fr_180px_120px_120px] items-center py-3 border-b border-gray-800 hover:bg-[#28282e] transition group">
+                                <div
+                                    key={song.song_id}
+                                    draggable
+                                    onDragStart={() => handleDragStart(idx)}
+                                    onDragOver={(e) => handleDragOver(e, idx)}
+                                    onDrop={(e) => handleDrop(e, idx)}
+                                    onDragEnd={handleDragEnd}
+                                    className={`grid grid-cols-[40px_56px_1fr_180px_120px_120px] items-center py-3 border-b border-gray-800 hover:bg-[#28282e] transition group cursor-move ${draggedIndex === idx ? "opacity-50" : ""} ${hoveredIndex === idx && draggedIndex !== null && draggedIndex !== idx ? "border-t-2 border-white" : ""}`}
+                                >
+                                    {/* Drag Handle */}
+                                    <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i className="fa-solid fa-grip-lines text-gray-400"></i>
+                                    </div>
                                     {/* Index */}
                                     <div className="text-lg font-semibold text-gray-300">{idx + 1}</div>
-
                                     {/* Title & Cover */}
                                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => {
                                         if (playlist.songs && playlist.songs.length > 0) {
@@ -123,13 +218,10 @@ export default function PlaylistDetail() {
                                             </button>
                                         </div>
                                     </div>
-
                                     {/* Album Name */}
                                     <div className="text-lg text-white truncate">{song.album?.title || "Unknown Album"}</div>
-
                                     {/* Duration */}
                                     <div className="text-lg text-white text-center">{formatDuration(song.duration)}</div>
-
                                     {/* Actions: Delete */}
                                     <div className="flex justify-end gap-3 text-gray-400 items-center">
                                         <button
