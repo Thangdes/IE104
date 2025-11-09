@@ -1,3 +1,5 @@
+import cloudinary from "../services/cloudinary.js";
+import multer from "multer";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -107,5 +109,58 @@ export const deletePlaylist = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to delete playlist" });
+    }
+};
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith("image/")) cb(null, true);
+        else cb(new Error("Only image files are allowed!"));
+    },
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
+export const playlistUploadMiddleware = upload.single("cover");
+
+export const createPlaylist = async (req, res) => {
+    // This expects playlistUploadMiddleware to run before
+    try {
+        const user = req.user || JSON.parse(req.headers["x-user"] || "null");
+        if (!user || !user.id) return res.status(401).json({ error: "Not authenticated" });
+        const { name, description } = req.body;
+        if (!name) return res.status(400).json({ error: "Playlist name is required" });
+        let cover_image = null;
+        if (req.file) {
+            // Upload to Cloudinary (stream, like avatar upload)
+            const streamUpload = (buffer) => {
+                return new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: "playlist-covers",
+                            resource_type: "image",
+                        },
+                        (error, result) => {
+                            if (result) resolve(result);
+                            else reject(error);
+                        }
+                    );
+                    stream.end(buffer);
+                });
+            };
+            const uploadRes = await streamUpload(req.file.buffer);
+            cover_image = uploadRes.secure_url;
+        }
+        const playlist = await prisma.playlists.create({
+            data: {
+                name,
+                description,
+                cover_image,
+                user_id: user.id,
+            },
+        });
+        res.json({ success: true, playlist });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to create playlist" });
     }
 };
