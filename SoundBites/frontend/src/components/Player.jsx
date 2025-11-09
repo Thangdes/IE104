@@ -41,7 +41,69 @@ function Player() {
         toggleLyricOverlay,
     } = useSong();
     const navigate = useNavigate();
-    const [addStatus] = useState("");
+    const [addStatus, setAddStatus] = useState("");
+    useEffect(() => {
+        if (addStatus) {
+            const timer = setTimeout(() => setAddStatus(""), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [addStatus]);
+
+    // Add to playlist modal state
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [playlists, setPlaylists] = useState([]);
+    const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+    const [addError, setAddError] = useState("");
+
+    // Fetch playlists when opening add modal
+    const fetchPlaylists = async () => {
+        setLoadingPlaylists(true);
+        setAddError("");
+        const token = getToken();
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+        try {
+            const res = await fetch(`${API_BASE}/playlists`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+            const data = await res.json();
+            setPlaylists(Array.isArray(data) ? data : []);
+        } catch {
+            setAddError("Failed to load playlists");
+        }
+        setLoadingPlaylists(false);
+    };
+
+    const openAddModal = (e) => {
+        e.stopPropagation();
+        setShowAddModal(true);
+        fetchPlaylists();
+    };
+
+    const handleAddToPlaylist = async (playlistId) => {
+        if (!currentSong) return;
+        setAddError("");
+        const token = getToken();
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+        try {
+            const res = await fetch(`${API_BASE}/playlists/${playlistId}/add-song`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ songId: currentSong.song_id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAddStatus("Added to playlist!");
+                setShowAddModal(false);
+            } else {
+                setAddError("Failed to add to playlist");
+            }
+        } catch {
+            setAddError("Failed to add to playlist");
+        }
+    };
 
     // QueueList popup state
     const [showQueue, setShowQueue] = useState(false);
@@ -161,7 +223,43 @@ function Player() {
                         <i className={liked ? "fa-solid fa-heart text-green-500" : "fa-regular fa-heart"}></i>
                     </span>
                 </button>
+                <button onClick={openAddModal} className="ml-1 text-gray-400 hover:text-blue-400" title="Add to playlist">
+                    <i className="fa-solid fa-plus"></i>
+                </button>
+
+                {/* Add to Playlist Modal */}
+                {showAddModal && (
+                    <div className="fixed left-1/4 bottom-7 z-50 bg-transparent bg-opacity-50" style={{ pointerEvents: 'auto' }} onClick={() => setShowAddModal(false)}>
+                        <div className="bg-[#23232a] rounded-xl p-6 min-w-[320px] max-w-[90vw] text-white relative shadow-lg" onClick={e => e.stopPropagation()}>
+                            <button className="absolute top-2 right-3 text-gray-400 hover:text-white text-xl" onClick={() => setShowAddModal(false)}>&times;</button>
+                            <h2 className="text-xl font-bold mb-4">Add this song to a playlist:</h2>
+                            {loadingPlaylists ? (
+                                <div className="text-center py-4">Loading playlists...</div>
+                            ) : addError ? (
+                                <div className="text-red-400 py-2">{addError}</div>
+                            ) : playlists.length === 0 ? (
+                                <div className="text-gray-400 py-2">No playlists found.</div>
+                            ) : (
+                                <ul className="space-y-2 max-h-60 overflow-y-auto">
+                                    {playlists.map((pl) => (
+                                        <li key={pl.playlist_id}>
+                                            <button
+                                                className="w-full text-left px-4 py-2 rounded hover:bg-[#38373D] transition"
+                                                onClick={() => handleAddToPlaylist(pl.playlist_id)}
+                                            >
+                                                {pl.name}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Thông báo khi thêm bài hát vào playlist */}
+            {addStatus && <span className="text-green-400 text-xs fixed left-1/4 bottom-9 z-50">{addStatus}</span>}
 
             {/* Center: Controls (click to open detail) */}
             <div
@@ -170,11 +268,11 @@ function Player() {
                 style={{ cursor: currentSong ? "pointer" : "default" }}
             >
                 <div className="flex items-center gap-5 text-gray-300">
-                    <button 
+                    <button
                         onClick={(e) => {
                             e.stopPropagation();
                             toggleShuffle();
-                        }} 
+                        }}
                         className={isShuffle ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
                         title={isShuffle ? "Shuffle: ON" : "Shuffle: OFF"}
                     >
@@ -256,8 +354,6 @@ function Player() {
             </div>
 
             <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }} className="flex items-center gap-4 text-gray-300">
-                {/* Thông báo khi thêm bài hát vào playlist */}
-                {addStatus && <span className="text-green-400 text-xs mr-2">{addStatus}</span>}
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
@@ -284,15 +380,15 @@ function Player() {
                     />
                 </div>
             </div>
-        {/* QueueList Popup */}
-        {showQueue && (
-            <QueueList
-                queue={queue}
-                currentQueueIndex={currentQueueIndex}
-                onClose={() => setShowQueue(false)}
-            />
-        )}
-    </div>
+            {/* QueueList Popup */}
+            {showQueue && (
+                <QueueList
+                    queue={queue}
+                    currentQueueIndex={currentQueueIndex}
+                    onClose={() => setShowQueue(false)}
+                />
+            )}
+        </div>
     );
 }
 
