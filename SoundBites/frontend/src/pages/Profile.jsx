@@ -177,36 +177,18 @@ function Profile() {
 
     return (
         <div className="flex justify-center items-center min-h-[640px] px-6 py-10">
-            <div
-                className="form-container bg-[#1e1e23]/80 rounded-xl p-10 shadow-lg w-full max-w-4xl"
-            >
+            <div className="w-full max-w-4xl">
                 <ActionButtons onDelete={handleDeleteAccount} onLogout={handleLogout} />
-
-                <div className="mt-8">
-                    {/* Form Section */}
-                    <div className="bg-white/5 p-8 rounded-lg shadow-md">
-                        {/* Avatar on top */}
-                        <div className="flex justify-center md:justify-start mb-8">
-                            <Avatar imageUrl={avatarUrl || "/name.png"} onSelectFile={handleAvatarFile} loading={uploadingAvatar} />
-                        </div>
-
-                        {/* Profile fields */}
-                        <ProfileForm
-                            form={form}
-                            onChange={handleChange}
-                            onGenderChange={handleGenderChange}
-                        />
-
-                        {/* Save Button */}
-                        <div className="flex justify-end mt-10">
-                            <button
-                                onClick={handleSave}
-                                className="bg-white text-[#1b1b1f] font-semibold text-lg leading-[22px] px-10 py-3 rounded-[12px] transition-all duration-300 hover:bg-[#626267] hover:text-[#FEFEFE] hover:scale-[1.05]"
-                            >
-                                Save changes
-                            </button>
-                        </div>
+                <div className="bg-gradient-to-br from-white/5 to-white/0 rounded-2xl border border-white/10 p-8 backdrop-blur-sm">
+                    <div className="flex flex-col items-center mb-10">
+                        <Avatar imageUrl={avatarUrl || "/name.png"} onSelectFile={handleAvatarFile} loading={uploadingAvatar} />
                     </div>
+                    <ProfileForm
+                        form={form}
+                        onChange={handleChange}
+                        onGenderChange={handleGenderChange}
+                        onSave={handleSave}
+                    />
                 </div>
             </div>
         </div>
