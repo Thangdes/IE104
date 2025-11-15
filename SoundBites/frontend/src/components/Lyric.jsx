@@ -22,7 +22,7 @@ function parseWordWithTimestamp(wordText) {
             hasTimestamp: true
         };
     }
-    
+
     // Format 2: word[00:01.23]
     const match2 = wordText.match(/^(.+)(\[\d{2}:\d{2}(?:\.\d{2})?\])$/);
     if (match2) {
@@ -32,7 +32,7 @@ function parseWordWithTimestamp(wordText) {
             hasTimestamp: true
         };
     }
-    
+
     // Không có timestamp
     return {
         time: null,
@@ -44,17 +44,17 @@ function parseWordWithTimestamp(wordText) {
 // Parse lyrics thành array với timestamp cho từng từ
 function parseLyrics(lyricsText) {
     if (!lyricsText) return [];
-    
+
     const lines = lyricsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
     const parsed = [];
-    
+
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         const words = line.split(/\s+/); // Tách theo khoảng trắng
         const lineWords = [];
         let lineTime = null;
         let hasAnyTimestamp = false;
-        
+
         for (const word of words) {
             const parsedWord = parseWordWithTimestamp(word);
             lineWords.push(parsedWord);
@@ -66,7 +66,7 @@ function parseLyrics(lyricsText) {
                 }
             }
         }
-        
+
         parsed.push({
             time: lineTime,
             words: lineWords,
@@ -74,7 +74,7 @@ function parseLyrics(lyricsText) {
             originalText: line
         });
     }
-    
+
     return parsed;
 }
 
@@ -98,7 +98,7 @@ export default function Lyric() {
 
         const parsed = parseLyrics(currentSong.lyrics);
         setParsedLyrics(parsed);
-        
+
         // Kiểm tra xem có synchronized lyrics không
         const hasSync = parsed.some(line => line.hasTimestamp);
         setHasSynchronizedLyrics(hasSync);
@@ -109,13 +109,13 @@ export default function Lyric() {
     // Tự động cập nhật active line và word dựa trên currentTime
     useEffect(() => {
         if (parsedLyrics.length === 0) return;
-        
+
         // Chỉ highlight khi bài hát đang phát
         if (!isPlaying) {
             // Nếu đang pause, giữ nguyên highlight hiện tại, không thay đổi
             return;
         }
-        
+
         // Reset highlight nếu chưa bắt đầu phát
         if (currentTime <= 0) {
             if (activeLineIndex !== -1) {
@@ -132,7 +132,7 @@ export default function Lyric() {
             // Có synchronized lyrics - chỉ highlight khi currentTime >= timestamp của dòng
             let bestLineIndex = -1;
             let bestLineTime = -1;
-            
+
             for (let i = 0; i < parsedLyrics.length; i++) {
                 if (parsedLyrics[i].hasTimestamp && parsedLyrics[i].time !== null) {
                     const lineTime = parsedLyrics[i].time;
@@ -149,15 +149,15 @@ export default function Lyric() {
                     }
                 }
             }
-            
+
             newActiveLineIndex = bestLineIndex;
-            
+
             // Nếu tìm thấy dòng active, tìm từ active trong dòng đó
             if (newActiveLineIndex >= 0) {
                 const activeLine = parsedLyrics[newActiveLineIndex];
                 let bestWordIndex = -1;
                 let bestWordTime = -1;
-                
+
                 // Tìm từ có timestamp <= currentTime và gần nhất
                 for (let j = 0; j < activeLine.words.length; j++) {
                     const word = activeLine.words[j];
@@ -172,7 +172,7 @@ export default function Lyric() {
                         }
                     }
                 }
-                
+
                 // Nếu tìm thấy từ, dùng từ đó; nếu không, không highlight từ nào
                 newActiveWordIndex = bestWordIndex;
             } else {
@@ -186,7 +186,7 @@ export default function Lyric() {
             newActiveLineIndex = -1;
             newActiveWordIndex = -1;
         }
-        
+
         if (newActiveLineIndex !== activeLineIndex) {
             setActiveLineIndex(newActiveLineIndex);
         }
@@ -232,7 +232,7 @@ export default function Lyric() {
             </button>
 
             {/* Lyric content */}
-            <div 
+            <div
                 ref={lyricContainerRef}
                 className="lyric-container flex-1 overflow-y-auto px-12 py-20 space-y-8"
                 style={{
@@ -242,10 +242,10 @@ export default function Lyric() {
             >
                 {parsedLyrics.map((line, lineIndex) => {
                     const isLineActive = lineIndex === activeLineIndex;
-                    const isLinePast = hasSynchronizedLyrics 
+                    const isLinePast = hasSynchronizedLyrics
                         ? (lineIndex < activeLineIndex && parsedLyrics[lineIndex].hasTimestamp)
                         : lineIndex < activeLineIndex;
-                    
+
                     return (
                         <div
                             key={lineIndex}
@@ -256,59 +256,34 @@ export default function Lyric() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 flexWrap: 'wrap',
-                                gap: '0.5rem',
-                                fontSize: isLineActive ? '2rem' : '1.5rem',
+                                gap: '0.1 rem',
+                                fontSize: isLineActive ? '1.5rem' : '1.5rem',
                                 lineHeight: '1.8',
                                 fontWeight: isLineActive ? '700' : isLinePast ? '600' : '500',
                                 color: '#ffffff',
-                                textShadow: isLineActive 
+                                textShadow: isLineActive
                                     ? '2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7)'
                                     : '1px 1px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.6)',
-                                opacity: '1'
+                                opacity: '1',
+                                background: isLineActive ? 'rgba(255,255,255,0.25)' : 'transparent',
+                                borderRadius: isLineActive ? '0.6em' : undefined,
+                                transition: 'background 0.3s',
                             }}
                         >
-                            {/* Icon sao bên trái dòng đang active */}
-                            {isLineActive && (
-                                <i className="fa-solid fa-star text-white text-2xl font-bold drop-shadow-lg"></i>
-                            )}
-                            
-                            {line.words.map((word, wordIndex) => {
-                                const isWordActive = isLineActive && 
-                                    activeWordIndex.lineIndex === lineIndex && 
-                                    activeWordIndex.wordIndex === wordIndex;
-                                const isWordPast = isLineActive && 
-                                    activeWordIndex.lineIndex === lineIndex && 
-                                    wordIndex < activeWordIndex.wordIndex;
-                                
-                                return (
-                                    <span
-                                        key={wordIndex}
-                                        className={`transition-all duration-200 text-white ${
-                                            isWordActive
-                                                ? 'font-bold scale-115'
-                                                : ''
-                                        }`}
-                                        style={{
-                                            display: 'inline-block',
-                                            padding: '0 0.25rem',
-                                            fontSize: isWordActive ? '2.25rem' : 'inherit',
-                                            fontWeight: isWordActive ? '800' : isWordPast ? '600' : '500',
-                                            color: '#ffffff',
-                                            textShadow: isWordActive 
-                                                ? '3px 3px 10px rgba(0,0,0,0.95), 0 0 25px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.6)'
-                                                : '1px 1px 5px rgba(0,0,0,0.8), 0 0 12px rgba(0,0,0,0.6)',
-                                            opacity: '1'
-                                        }}
-                                    >
-                                        {word.text || '\u00A0'}
-                                    </span>
-                                );
-                            })}
-                            
-                            {/* Icon sao bên phải dòng đang active */}
-                            {isLineActive && (
-                                <i className="fa-solid fa-star text-white text-2xl font-bold drop-shadow-lg"></i>
-                            )}
+                            {line.words.map((word, wordIndex) => (
+                                <span
+                                    key={wordIndex}
+                                    className={`transition-all duration-200 text-white`}
+                                    style={{
+                                        display: 'inline-block',
+                                        padding: '0 0.25rem',
+                                        color: '#ffffff',
+                                        opacity: '1',
+                                    }}
+                                >
+                                    {word.text || '\u00A0'}
+                                </span>
+                            ))}
                         </div>
                     );
                 })}

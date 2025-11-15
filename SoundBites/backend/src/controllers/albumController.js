@@ -5,7 +5,7 @@ export const getLatestAlbums = async (req, res) => {
     try {
         const albums = await prisma.albums.findMany({
             orderBy: { release_date: "desc" },
-            take: 10,
+            take: 5,
             include: {
                 artist: { select: { name: true } },
             },

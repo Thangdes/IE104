@@ -323,18 +323,6 @@ function Player() {
                             </>
                         )}
                     </button>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (currentSong) {
-                                toggleLyricOverlay();
-                            }
-                        }}
-                        className={showLyricOverlay ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
-                        title={showLyricOverlay ? "Ẩn lời bài hát" : "Xem lời bài hát"}
-                    >
-                        <i className="fa-solid fa-microphone"></i>
-                    </button>
                 </div>
 
                 {/* Progress bar */}
@@ -354,6 +342,18 @@ function Player() {
             </div>
 
             <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }} className="flex items-center gap-4 text-gray-300">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentSong) {
+                            toggleLyricOverlay();
+                        }
+                    }}
+                    className={showLyricOverlay ? "text-white hover:text-gray-200" : "text-gray-700 hover:text-white"}
+                    title={showLyricOverlay ? "Ẩn lời bài hát" : "Xem lời bài hát"}
+                >
+                    <i className="fa-solid fa-microphone"></i>
+                </button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();

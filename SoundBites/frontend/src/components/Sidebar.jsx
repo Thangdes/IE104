@@ -79,7 +79,7 @@ function Sidebar() {
                                     <span>Albums</span>
                                 </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <button
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
                                     onClick={() => handleProtectedNav("/following")}
@@ -87,7 +87,7 @@ function Sidebar() {
                                     <i className="fa-solid fa-user-plus"></i>
                                     <span>Following</span>
                                 </button>
-                            </li>
+                            </li> */}
                             <li>
                                 <button
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
@@ -109,7 +109,7 @@ function Sidebar() {
                         <ul className="space-y-2">
                             <li>
                                 <Link
-                                    to="/coming-soon"
+                                    to="/settings"
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
                                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                                 >

@@ -9,7 +9,7 @@ router.get("/top", async (req, res) => {
     try {
         const songs = await prisma.songs.findMany({
             orderBy: { play_count: "desc" },
-            take: 6,
+            take: 10,
             include: {
                 artist: true,
                 album: true,

@@ -9,7 +9,7 @@ export const listSongs = async (req, res) => {
                 album: { select: { cover_image: true } },
             },
             orderBy: { play_count: "desc" },
-            take: 6,
+            take: 10,
         });
         res.json(songs);
     } catch (error) {
