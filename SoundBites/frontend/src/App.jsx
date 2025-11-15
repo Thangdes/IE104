@@ -20,6 +20,7 @@ import Signup from "./pages/Signup";
 import SongDetail from "./pages/SongDetail";
 import ComingSoon from "./pages/ComingSoon";
 import History from "./pages/History";
+import Setting from "./pages/Setting";
 
 function PlayerWrapper() {
     const { currentSong } = useSong();
@@ -157,6 +158,7 @@ function AppContent() {
                             <Route path="/albums/:id" element={<AlbumDetail />} />
                             <Route path="/artists/:id" element={<ArtistDetail />} />
                             <Route path="/history" element={<History />} />
+                            <Route path="/settings" element={<Setting />} />
                             <Route path="/coming-soon" element={<ComingSoon />} />
 
                             {/* Không cần route login ở đây nữa */}
