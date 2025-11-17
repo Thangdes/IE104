@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSong } from "../context/SongContext";
 
@@ -19,6 +19,13 @@ export default function PlaylistDetail() {
     const [loading, setLoading] = useState(true);
     const { playQueue } = useSong();
     const navigate = useNavigate();
+    const inputRef = useRef(null);
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+        user = null;
+    }
 
     useEffect(() => {
         async function fetchPlaylist() {
@@ -85,6 +92,34 @@ export default function PlaylistDetail() {
         }
     }
 
+    const [coverUploading, setCoverUploading] = useState(false);
+
+    // Add a button to update the playlist cover picture
+    const handleUpdateCover = async (file) => {
+        if (!file) return;
+        setCoverUploading(true);
+        const formData = new FormData();
+        formData.append("cover", file);
+
+        try {
+            const res = await fetch(`${API_BASE}/playlists/${id}/cover`, {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Cover updated successfully.");
+                setPlaylist((prev) => ({ ...prev, cover_image: data.cover_image }));
+            } else {
+                alert("Failed to update cover.");
+            }
+        } catch {
+            alert("Error updating cover.");
+        } finally {
+            setCoverUploading(false);
+        }
+    };
+
     if (loading) return <div className="text-center text-white p-8 text-4xl font-bold mb-2">Loading...</div>;
     if (!playlist) return <div className="text-center text-red-500 p-8 text-2xl font-bold mb-2">Cannot find playlist</div>;
 
@@ -92,13 +127,59 @@ export default function PlaylistDetail() {
         <div className="bg-[#1b1b1f] text-white font-redhat min-h-screen px-6 py-10 rounded-xl">
             {/* Header Section */}
             <section className="flex flex-col md:flex-row items-center gap-8 mb-12">
-                <div className="w-56 h-56 bg-[#23232a] rounded-xl shadow flex items-center justify-center overflow-hidden mb-6 md:mb-0">
+                <div className="w-56 h-56 bg-[#23232a] rounded-xl shadow flex items-center justify-center overflow-hidden mb-6 md:mb-0 relative group">
                     {playlist.cover_image ? (
                         <img src={playlist.cover_image} alt="cover" className="w-full h-full object-cover" />
                     ) : (
                         <span className="text-6xl text-gray-600">
                             <svg width="64" height="64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v18m9-9H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         </span>
+                    )}
+                    {coverUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20 rounded-xl">
+                            <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                        </div>
+                    )}
+                    {user && user.username === playlist.user.username && !coverUploading && (
+                        <>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    inputRef.current?.click();
+                                }}
+                                className="absolute inset-0 flex items-center justify-center bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-xl w-full h-full"
+                                style={{ pointerEvents: 'auto' }}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="32"
+                                    height="32"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="lucide lucide-upload w-8 h-8 mr-2"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M12 3v12"></path>
+                                    <path d="m17 8-5-5-5 5"></path>
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                </svg>
+                                <span className="text-lg font-semibold">Update Cover</span>
+                            </button>
+                            <input
+                                ref={inputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleUpdateCover(e.target.files?.[0])}
+                            />
+                        </>
                     )}
                 </div>
                 <div className="flex-1">
@@ -136,28 +217,30 @@ export default function PlaylistDetail() {
                         <span>Shuffle</span>
                     </button>
                 </div>
-                <button
-                    className="flex items-center gap-2 border-red-900 bg-transparent text-red-500 font-light text-lg leading-[22px] px-8 py-3 rounded-[12px] transition-all duration-300 hover:bg-red-950 hover:text-red-400 hover:scale-[1.05]"
-                    onClick={async () => {
-                        if (window.confirm('Are you sure you want to delete this playlist?')) {
-                            try {
-                                const res = await fetch(`${API_BASE}/playlists/${id}`, { method: 'DELETE' });
-                                const data = await res.json();
-                                if (data.success) {
-                                    alert('Playlist deleted successfully.');
-                                    navigate('/');
-                                } else {
-                                    alert('Failed to delete playlist.');
+                {user && user.username === playlist.user.username && (
+                    <button
+                        className="flex items-center gap-2 border-red-900 bg-transparent text-red-500 font-light text-lg leading-[22px] px-8 py-3 rounded-[12px] transition-all duration-300 hover:bg-red-950 hover:text-red-400 hover:scale-[1.05]"
+                        onClick={async () => {
+                            if (window.confirm('Are you sure you want to delete this playlist?')) {
+                                try {
+                                    const res = await fetch(`${API_BASE}/playlists/${id}`, { method: 'DELETE' });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        alert('Playlist deleted successfully.');
+                                        navigate('/');
+                                    } else {
+                                        alert('Failed to delete playlist.');
+                                    }
+                                } catch {
+                                    alert('Error deleting playlist.');
                                 }
-                            } catch {
-                                alert('Error deleting playlist.');
                             }
-                        }
-                    }}
-                >
-                    <i className="fa-solid fa-trash"></i>
-                    <span>Delete Playlist</span>
-                </button>
+                        }}
+                    >
+                        <i className="fa-solid fa-trash"></i>
+                        <span>Delete Playlist</span>
+                    </button>
+                )}
             </div>
 
             {/* Songs Section */}
@@ -175,7 +258,9 @@ export default function PlaylistDetail() {
                                 <div>Title</div>
                                 <div>Album</div>
                                 <div className="text-center">Duration</div>
-                                <div className="hidden md:block text-right">Actions</div>
+                                {user && user.username === playlist.user.username && (
+                                    <div className="hidden md:block text-right">Actions</div>
+                                )}
                             </div>
                             {/* Track Items with drag and drop */}
                             {playlist.songs.map((song, idx) => (
@@ -224,13 +309,15 @@ export default function PlaylistDetail() {
                                     <div className="text-lg text-white text-center">{formatDuration(song.duration)}</div>
                                     {/* Actions: Delete */}
                                     <div className="flex justify-end gap-3 text-gray-400 items-center">
-                                        <button
-                                            className="ml-4 text-white hover:text-red-400 text-xl px-2 py-1 rounded transition"
-                                            title="Remove from playlist"
-                                            onClick={() => handleDeleteSong(song.song_id)}
-                                        >
-                                            <i className="fa-solid fa-trash"></i>
-                                        </button>
+                                        {user && user.username === playlist.user.username && (
+                                            <button
+                                                className="ml-4 text-white hover:text-red-400 text-xl px-2 py-1 rounded transition"
+                                                title="Remove from playlist"
+                                                onClick={() => handleDeleteSong(song.song_id)}
+                                            >
+                                                <i className="fa-solid fa-trash"></i>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}

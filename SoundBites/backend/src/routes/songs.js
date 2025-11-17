@@ -1,5 +1,6 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
+import { incrementPlayCount } from "../controllers/songController.js";
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -21,5 +22,7 @@ router.get("/top", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch top songs" });
     }
 });
+
+router.post("/increment-playcount", incrementPlayCount);
 
 export default router;

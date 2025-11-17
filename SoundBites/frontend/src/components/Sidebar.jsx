@@ -118,16 +118,6 @@ function Sidebar() {
                                 </Link>
                             </li>
                             <li>
-                                <Link
-                                    to="/coming-soon"
-                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition"
-                                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                                >
-                                    <i className="fa-solid fa-crown"></i>
-                                    <span>Subscription</span>
-                                </Link>
-                            </li>
-                            <li>
                                 <button
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#28282e] transition w-full text-left"
                                     onClick={() => {
