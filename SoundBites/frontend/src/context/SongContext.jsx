@@ -130,7 +130,7 @@ export function SongProvider({ children }) {
         });
     }, []);
 
-    // Tự động cập nhật lịch sử nghe khi currentSong thay đổi (khi người dùng bấm vào bài hát)
+    // Tự động cập nhật lịch sử nghe và tăng play_count khi currentSong thay đổi (khi người dùng bấm vào bài hát)
     useEffect(() => {
         // Chỉ cập nhật khi có currentSong
         if (!currentSong?.song_id) return;
@@ -140,6 +140,14 @@ export function SongProvider({ children }) {
             // Chỉ cập nhật nếu đây là bài hát mới (khác với bài đã cập nhật trước đó)
             updateHistory(currentSong.song_id);
         }
+
+        // Gọi API tăng play_count
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";
+        fetch(`${API_BASE}/songs/increment-playcount`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ songId: currentSong.song_id })
+        }).catch(() => {});
     }, [currentSong?.song_id, updateHistory]);
 
     // when currentSong changes, load it into audio element

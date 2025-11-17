@@ -17,7 +17,6 @@ function SongCard({ title, artist, coverImage, playCount, onPlay, song_id, artis
     useEffect(() => {
         async function fetchLiked() {
             if (!token || !song_id) {
-                console.log(`[SongCard] Skipping fetchLiked: token=${token}, song_id=${song_id}`);
                 return setLiked(false);
             }
             const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000/api";

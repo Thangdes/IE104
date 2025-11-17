@@ -112,7 +112,8 @@ export const deletePlaylist = async (req, res) => {
     }
 };
 
-const upload = multer({
+// DRY: Shared multer image upload middleware
+const imageUpload = multer({
     storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith("image/")) cb(null, true);
@@ -120,7 +121,9 @@ const upload = multer({
     },
     limits: { fileSize: 5 * 1024 * 1024 },
 });
-export const playlistUploadMiddleware = upload.single("cover");
+
+export const playlistUploadMiddleware = imageUpload.single("cover");
+export const playlistCoverUploadMiddleware = imageUpload.single("cover");
 
 export const createPlaylist = async (req, res) => {
     // This expects playlistUploadMiddleware to run before
@@ -162,5 +165,28 @@ export const createPlaylist = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to create playlist" });
+    }
+};
+
+export const updatePlaylistCover = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const file = req.file;
+        if (!file) return res.status(400).json({ error: 'No file uploaded' });
+        // Upload to Cloudinary using base64 data URI
+        const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+        const cloudinary = (await import("../services/cloudinary.js")).default;
+        const result = await cloudinary.uploader.upload(base64, {
+            folder: 'soundbites/playlist_covers',
+            resource_type: 'image'
+        });
+        const updated = await prisma.playlists.update({
+            where: { playlist_id: Number(id) },
+            data: { cover_image: result.secure_url }
+        });
+        res.json({ success: true, cover_image: result.secure_url });
+    } catch (error) {
+        console.error('updatePlaylistCover error:', error);
+        res.status(500).json({ error: 'Failed to update playlist cover' });
     }
 };
